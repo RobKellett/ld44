@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LD44.Utilities;
 
 public enum GroundType {
     Grass,
@@ -18,7 +19,6 @@ public class Map : Node
     public int MAP_HEIGHT = 100;
     public int MAP_BOTTOM_EDGE => MAP_HEIGHT - 1;
     public GroundType[,] _land;
-    private Random _random;
 
     private PackedScene _tree;
 
@@ -27,7 +27,6 @@ public class Map : Node
     {
         base._Ready();
         _tree = GD.Load<PackedScene>("res://Objects/Tree.tscn");
-        _random = new Random();
         GenerateMap();
         var mapRenderer = GetChild<MapRenderer>(0);
         mapRenderer.DoRender(this);
@@ -53,21 +52,21 @@ public class Map : Node
         }
 
         // Fill in some random rivers
-        var riverCount = _random.Next(6, 12);
+        var riverCount = RNG.Instance.Next(6, 12);
         for(var i = 0; i < riverCount; i++) {
             AddRiver();
         }
 
         for(var i = 0; i < 50; i++) {
-            var centerX = _random.Next(0, MAP_WIDTH);
-            var centerY = _random.Next(0, MAP_HEIGHT);
+            var centerX = RNG.Instance.Next(0, MAP_WIDTH);
+            var centerY = RNG.Instance.Next(0, MAP_HEIGHT);
 
             AddBiome(centerX, centerY, 0, 200, RandomGroundType(new GroundType[] { GroundType.Mountain, GroundType.Water }));
         }
 
         for(var i = 0; i < 10; i++) {
-            var centerX = _random.Next(0, MAP_WIDTH);
-            var centerY = _random.Next(0, MAP_HEIGHT);
+            var centerX = RNG.Instance.Next(0, MAP_WIDTH);
+            var centerY = RNG.Instance.Next(0, MAP_HEIGHT);
             AddForest(centerX, centerY, 0, 200);
         }
         GD.Print("Done generating map.");
@@ -82,21 +81,21 @@ public class Map : Node
         // Right edge == edge 2
         // Top edge == edge 1
         // Bottom edge == edge 3
-        var edge = _random.Next(0, 4);
+        var edge = RNG.Instance.Next(0, 4);
         if(edge == 0) {
             riverCursorX = 0;
-            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE);
+            riverCursorY = RNG.Instance.Next(1, MAP_BOTTOM_EDGE);
             targetEdge = 2;
         } else if(edge == 1) {
-            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE);
+            riverCursorX = RNG.Instance.Next(1, MAP_RIGHT_EDGE);
             riverCursorY = 0;
             targetEdge = 3;
         } else if(edge == 2) {
             riverCursorX = MAP_RIGHT_EDGE;
-            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE);
+            riverCursorY = RNG.Instance.Next(1, MAP_BOTTOM_EDGE);
             targetEdge = 0;
         } else if(edge == 3) {
-            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE);
+            riverCursorX = RNG.Instance.Next(1, MAP_RIGHT_EDGE);
             riverCursorY = MAP_BOTTOM_EDGE;
             targetEdge = 1;
         }
@@ -110,9 +109,9 @@ public class Map : Node
             switch(dir) {
                 case 0: {
                     randFlow = 1;
-                    if(_random.NextDouble() < 0.25) {
+                    if(RNG.Instance.NextDouble() < 0.25) {
                         dir = 0;
-                    } else if(_random.NextDouble() < 0.35) {
+                    } else if(RNG.Instance.NextDouble() < 0.35) {
                         dir = 1;
                     } else {
                         dir = 2;
@@ -233,7 +232,7 @@ public class Map : Node
         // For now, just use equal probability to pick all of them
         int idx = 0;
         foreach(var i in options) {
-            var r = _random.Next(0, idx + 1);
+            var r = RNG.Instance.Next(0, idx + 1);
             if(r < 1) {
                 c = i;
             }
@@ -256,7 +255,7 @@ public class Map : Node
             }
         }
         
-        int choice = _random.Next(0, allowedTypes.Count);
+        int choice = RNG.Instance.Next(0, allowedTypes.Count);
         return allowedTypes[choice];
     }
 }
