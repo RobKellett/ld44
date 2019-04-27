@@ -15,8 +15,6 @@ format = 1
 script = ExtResource( 3 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2( 512, 300 )
-offset = Vector2( -512, -300 )
 anchor_mode = 0
 current = true
 script = ExtResource( 4 )

@@ -29,6 +29,12 @@ public class Camera : Camera2D
             scrollDir.y += 1;  
         }
         scrollDir = scrollDir.Normalized() * CameraSpeed * delta;
+        if(Position.x + scrollDir.x < 0) {
+            scrollDir.x = 0;
+        }
+        if(Position.y + scrollDir.y < 0) {
+            scrollDir.y = 0;
+        }
         Translate(scrollDir);
     }
 }
