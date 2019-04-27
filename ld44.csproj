@@ -49,6 +49,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\Cactus.cs" />
     <Compile Include="Code\Camera.cs" />
     <Compile Include="Code\Map.cs" />
     <Compile Include="Code\MapRenderer.cs" />
