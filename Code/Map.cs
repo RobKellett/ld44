@@ -97,12 +97,14 @@ public class Map : Node
         // Set some wood and mushroom forests
         var forestedPlants = new[] { PlantType.Tree, PlantType.Mushroom };
         var forestCount = RNG.Instance.Next(MIN_FORESTS, MAX_FORESTS + 1);
-        for(var i = 0; i < 10; i++) {
+        for(var i = 0; i < forestCount; i++) {
             var centerX = RNG.Instance.Next(0, MAP_WIDTH);
             var centerY = RNG.Instance.Next(0, MAP_HEIGHT);
-            var plantType = RNG.Instance.Next(0, forestedPlants.Length);
+            var allowedTypes = GetAllowedPlants(_land[centerX, centerY]).Intersect(forestedPlants).ToArray();
+            if(allowedTypes.Length == 0) continue;
+            var plantType = RNG.Instance.Next(0, allowedTypes.Length);
             var forestSize = RNG.Instance.Next(MIN_FOREST_SIZE, MAX_FOREST_SIZE + 1);
-            AddForest(centerX, centerY, 0, forestSize, forestedPlants[plantType]);
+            AddForest(centerX, centerY, 0, forestSize, allowedTypes[plantType]);
         }
 
         // Pepper some cacti, bushes, and fruit trees
@@ -111,11 +113,11 @@ public class Map : Node
         for(var i = 0; i < sparsePlantCount; i++) {
             var posX = RNG.Instance.Next(1, MAP_RIGHT_EDGE);
             var posY = RNG.Instance.Next(1, MAP_BOTTOM_EDGE);
-            var plantTypeIdx = RNG.Instance.Next(0, sparsePlants.Length);
-            var plantType = sparsePlants[plantTypeIdx];
-            if(_plants[posX, posY] == null && IsAllowedInBiome(plantType, _land[posX, posY])) {
-                AddPlant(posX, posY, plantType);
-            }
+            if(_plants[posX, posY] != null) continue;
+            var allowedTypes = GetAllowedPlants(_land[posX, posY]).Intersect(sparsePlants).ToArray();
+            if(allowedTypes.Length == 0) continue;
+            var plantType = RNG.Instance.Next(0, allowedTypes.Length);
+            AddPlant(posX, posY, allowedTypes[plantType]);
         }
 
         //
@@ -304,6 +306,19 @@ public class Map : Node
         
         int choice = RNG.Instance.Next(0, allowedTypes.Count);
         return allowedTypes[choice];
+    }
+
+    private PlantType[] GetAllowedPlants(GroundType biome) {
+        switch(biome) {
+            case GroundType.Desert:
+                return new [] { PlantType.Cactus };
+            case GroundType.Dirt:
+                return new [] { PlantType.Tree, PlantType.Mushroom, PlantType.Bush };
+            case GroundType.Grass:
+                return new [] { PlantType.Tree, PlantType.FruitTree, PlantType.Bush };
+            default:
+                return new PlantType[] {};
+        }
     }
 
     private bool IsAllowedInBiome(PlantType plant, GroundType biome) {
