@@ -56,8 +56,8 @@ public class Map : Node
         }
 
         for(var i = 0; i < 50; i++) {
-            var centerX = _random.Next(0, MAP_RIGHT_EDGE);
-            var centerY = _random.Next(0, MAP_BOTTOM_EDGE);
+            var centerX = _random.Next(0, MAP_WIDTH);
+            var centerY = _random.Next(0, MAP_HEIGHT);
 
             AddBiome(centerX, centerY, 0, 200, RandomGroundType(new GroundType[] { GroundType.Mountain, GroundType.Water }));
         }
@@ -73,33 +73,45 @@ public class Map : Node
         // Right edge == edge 2
         // Top edge == edge 1
         // Bottom edge == edge 3
-        var edge = _random.Next(0,3);
+        var edge = _random.Next(0, 4);
         if(edge == 0) {
             riverCursorX = 0;
-            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE - 1);
+            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE);
             targetEdge = 2;
         } else if(edge == 1) {
-            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE - 1);
+            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE);
             riverCursorY = 0;
             targetEdge = 3;
         } else if(edge == 2) {
             riverCursorX = MAP_RIGHT_EDGE;
-            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE - 1);
+            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE);
             targetEdge = 0;
         } else if(edge == 3) {
-            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE - 1);
+            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE);
             riverCursorY = MAP_BOTTOM_EDGE;
             targetEdge = 1;
         }
         // Now meander until we hit mountain or river, biased to flow north/south
         bool first = true;
+        int dir = 0; // 0 = forward, 1 = left, 2 = right
         while(true) {
             _land[riverCursorX, riverCursorY] = GroundType.Water;
-            var randTransverse = first ? 0 : _random.Next(-1, 1);
-            var randFlow = first ? 1 : _random.Next(0, 1);
-            if(randFlow == 0 && randTransverse == 0) {
-                // Make sure we're always progressing, at least
-                randFlow = 1;
+            var randFlow = 0;
+            var randTransverse = 0;
+            switch(dir) {
+                case 0: {
+                    randFlow = 1;
+                    if(_random.NextDouble() < 0.25) {
+                        dir = 0;
+                    } else if(_random.NextDouble() < 0.35) {
+                        dir = 1;
+                    } else {
+                        dir = 2;
+                    }
+                    break;
+                }
+                case 1: randTransverse = 1; dir = 0; break;
+                case 2: randTransverse = -1; dir = 0; break;
             }
             switch(targetEdge) {
                 case 0:
@@ -175,7 +187,7 @@ public class Map : Node
         // For now, just use equal probability to pick all of them
         int idx = 0;
         foreach(var i in options) {
-            var r = _random.Next(0, idx);
+            var r = _random.Next(0, idx + 1);
             if(r < 1) {
                 c = i;
             }
@@ -185,14 +197,20 @@ public class Map : Node
         return c;
     }
     private GroundType RandomGroundType(GroundType[] disallowedTypes = null) {
-        var allowedTypes = new List<GroundType> { GroundType.Grass, GroundType.Water, GroundType.Dirt, GroundType.Desert, GroundType.Mountain };
+        var allowedTypes = new List<GroundType> {
+            GroundType.Grass,
+            GroundType.Water,
+            GroundType.Dirt,
+            GroundType.Desert,
+            GroundType.Mountain
+        };
         if(disallowedTypes != null) {
             foreach(var dt in disallowedTypes) {
                 allowedTypes.Remove(dt);
             }
         }
         
-        int choice = _random.Next(0, allowedTypes.Count - 1);
+        int choice = _random.Next(0, allowedTypes.Count);
         return allowedTypes[choice];
     }
 }
