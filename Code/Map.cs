@@ -61,6 +61,12 @@ public class Map : Node
 
             AddBiome(centerX, centerY, 0, 200, RandomGroundType(new GroundType[] { GroundType.Mountain, GroundType.Water }));
         }
+
+        for(var i = 0; i < 10; i++) {
+            var centerX = _random.Next(0, MAP_WIDTH);
+            var centerY = _random.Next(0, MAP_HEIGHT);
+            AddForest(centerX, centerY, 0, 200);
+        }
         GD.Print("Done generating map.");
     }
     private void AddRiver() {
@@ -182,6 +188,39 @@ public class Map : Node
         }
     }
 
+    private void AddForest(int centerX, int centerY, float lumpiness, int targetSize) {
+        // Starting at centerX and centerY, start filling in things with type until you reach size
+        // Use lumpiness for random bias, such that lumpiness of 0 is a circle
+        var items = new List<PrioritizedMapCoord>();
+        items.Add(new PrioritizedMapCoord { X = centerX, Y = centerY, Priority = 1 });
+        int biomeSize = 0;
+        var trees = new List<PrioritizedMapCoord>();
+        while(items.Count > 0 && biomeSize < targetSize) {
+            var next = BiasedPick(items, 0);
+            if(next.X < 0 || next.X > MAP_RIGHT_EDGE) continue;
+            if(next.Y < 0 || next.Y > MAP_BOTTOM_EDGE) continue;
+            
+            // If a tree already exists at this position
+            if(trees.Any(t => t.X == next.X && t.Y == next.Y)) {
+                continue;
+            }
+            biomeSize++;
+
+            if(_land[next.X, next.Y] != GroundType.Water && _land[next.X, next.Y] != GroundType.Mountain) {
+                AddTree(next.X, next.Y);
+                trees.Add(next);
+            }
+            // Now add the neighbors
+            items.Add(new PrioritizedMapCoord { X = next.X - 1, Y = next.Y, Priority = 1 });
+            items.Add(new PrioritizedMapCoord { X = next.X + 1, Y = next.Y, Priority = 1 });
+            items.Add(new PrioritizedMapCoord { X = next.X, Y = next.Y - 1, Priority = 1 });
+            items.Add(new PrioritizedMapCoord { X = next.X, Y = next.Y + 1, Priority = 1 });
+        }
+    }
+
+    private void AddTree(int x, int y) {
+
+    }
     private PrioritizedMapCoord BiasedPick(List<PrioritizedMapCoord> options, float bias) {
         PrioritizedMapCoord c = options[0];
         // For now, just use equal probability to pick all of them
