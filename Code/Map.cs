@@ -50,16 +50,16 @@ public class Map : Node
         }
 
         // Fill in some random rivers
-        var riverCount = _random.Next(2, 5);
+        var riverCount = _random.Next(6, 12);
         for(var i = 0; i < riverCount; i++) {
             AddRiver();
         }
 
-        for(var i = 0; i < 10; i++) {
+        for(var i = 0; i < 50; i++) {
             var centerX = _random.Next(0, MAP_RIGHT_EDGE);
             var centerY = _random.Next(0, MAP_BOTTOM_EDGE);
 
-            AddBiome(centerX, centerY, 0, 15, RandomGroundType());
+            AddBiome(centerX, centerY, 0, 200, RandomGroundType(new GroundType[] { GroundType.Mountain, GroundType.Water }));
         }
         GD.Print("Done generating map.");
     }
@@ -76,26 +76,27 @@ public class Map : Node
         var edge = _random.Next(0,3);
         if(edge == 0) {
             riverCursorX = 0;
-            riverCursorY = _random.Next(0, MAP_BOTTOM_EDGE);
+            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE - 1);
             targetEdge = 2;
         } else if(edge == 1) {
-            riverCursorX = _random.Next(0, MAP_RIGHT_EDGE);
+            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE - 1);
             riverCursorY = 0;
             targetEdge = 3;
         } else if(edge == 2) {
             riverCursorX = MAP_RIGHT_EDGE;
-            riverCursorY = _random.Next(0, MAP_BOTTOM_EDGE);
+            riverCursorY = _random.Next(1, MAP_BOTTOM_EDGE - 1);
             targetEdge = 0;
         } else if(edge == 3) {
-            riverCursorX = _random.Next(0, MAP_RIGHT_EDGE);
+            riverCursorX = _random.Next(1, MAP_RIGHT_EDGE - 1);
             riverCursorY = MAP_BOTTOM_EDGE;
             targetEdge = 1;
         }
         // Now meander until we hit mountain or river, biased to flow north/south
+        bool first = true;
         while(true) {
             _land[riverCursorX, riverCursorY] = GroundType.Water;
-            var randTransverse = _random.Next(-1, 1);
-            var randFlow = _random.Next(0, 1);
+            var randTransverse = first ? 0 : _random.Next(-1, 1);
+            var randFlow = first ? 1 : _random.Next(0, 1);
             if(randFlow == 0 && randTransverse == 0) {
                 // Make sure we're always progressing, at least
                 randFlow = 1;
@@ -127,12 +128,18 @@ public class Map : Node
             if (riverCursorX < 0 ||
                 riverCursorY < 0 ||
                 riverCursorX > MAP_RIGHT_EDGE ||
-                riverCursorY > MAP_BOTTOM_EDGE ||
-                _land[riverCursorX, riverCursorY] == GroundType.Water ||
-                _land[riverCursorX, riverCursorY] == GroundType.Mountain
+                riverCursorY > MAP_BOTTOM_EDGE
             ) {
                 break;
-            } 
+            }
+            if (_land[riverCursorX, riverCursorY] == GroundType.Mountain) {
+                _land[riverCursorX, riverCursorY] = GroundType.Water;
+                break;
+            }
+            if (_land[riverCursorX, riverCursorY] == GroundType.Water) {
+                break;
+            }
+            first = false; 
         }
     }
 
@@ -177,15 +184,15 @@ public class Map : Node
         options.Remove(c);
         return c;
     }
-    private GroundType RandomGroundType() {
-        int choice = _random.Next(0, 4);
-        switch(choice) {
-            case 0: return GroundType.Grass;
-            case 1: return GroundType.Water;
-            case 2: return GroundType.Dirt;
-            case 3: return GroundType.Desert;
-            case 4: return GroundType.Mountain;
-            default: return GroundType.Grass;
+    private GroundType RandomGroundType(GroundType[] disallowedTypes = null) {
+        var allowedTypes = new List<GroundType> { GroundType.Grass, GroundType.Water, GroundType.Dirt, GroundType.Desert, GroundType.Mountain };
+        if(disallowedTypes != null) {
+            foreach(var dt in disallowedTypes) {
+                allowedTypes.Remove(dt);
+            }
         }
+        
+        int choice = _random.Next(0, allowedTypes.Count - 1);
+        return allowedTypes[choice];
     }
 }
