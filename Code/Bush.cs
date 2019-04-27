@@ -17,7 +17,7 @@ public class Bush : FruitedPlant
     sprite.SetTexture(noFruitTexture);
     sprite.RandomizePosition();
 
-    FRUIT_TIMER = 30f;
+    FRUIT_TIMER = 15f;
     _timeSinceFruitPicked = (float)RNG.Instance.NextDouble() * FRUIT_TIMER;
   }
   protected override void Bloom() {
