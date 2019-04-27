@@ -52,6 +52,8 @@
     <Compile Include="Code\Camera.cs" />
     <Compile Include="Code\Map.cs" />
     <Compile Include="Code\MapRenderer.cs" />
+    <Compile Include="Code\Mushroom.cs" />
+    <Compile Include="Code\ResourceSprite.cs" />
     <Compile Include="Code\Tree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Code\Utilities\Group.cs" />
