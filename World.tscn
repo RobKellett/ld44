@@ -15,7 +15,10 @@ format = 1
 script = ExtResource( 3 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
-anchor_mode = 0
+position = Vector2( 512, 300 )
 current = true
+process_mode = 0
+drag_margin_h_enabled = false
+drag_margin_v_enabled = false
 script = ExtResource( 4 )
 

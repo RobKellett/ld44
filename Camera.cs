@@ -3,7 +3,10 @@ using System;
 
 public class Camera : Camera2D
 {
-    public float CameraSpeed = 400f;
+    public float CameraSpeed = 800f;
+    public float CameraZoomSpeed = .7f;
+    public float MinZoom = 0.5f;
+    public float MaxZoom = 2.04f;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -29,12 +32,20 @@ public class Camera : Camera2D
             scrollDir.y += 1;  
         }
         scrollDir = scrollDir.Normalized() * CameraSpeed * delta;
-        if(Position.x + scrollDir.x < 0) {
-            scrollDir.x = 0;
-        }
-        if(Position.y + scrollDir.y < 0) {
-            scrollDir.y = 0;
-        }
         Translate(scrollDir);
+
+        float zoomFactor = 0f;
+        if(Input.IsKeyPressed((int)KeyList.Minus)) {
+            zoomFactor = 1;
+        } else if(Input.IsKeyPressed((int)KeyList.Equal)) {
+            zoomFactor = -1;
+        }
+        Zoom = Zoom * (1 + zoomFactor * CameraZoomSpeed * delta);
+        if(Zoom.x < MinZoom) {
+            Zoom = new Vector2(MinZoom, MinZoom);
+        }
+         if(Zoom.x > MaxZoom) {
+            Zoom = new Vector2(MaxZoom, MaxZoom);
+        }
     }
 }
