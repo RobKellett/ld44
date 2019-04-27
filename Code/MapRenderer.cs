@@ -36,6 +36,6 @@ public class MapRenderer : TileMap
         GroundType.Mountain
       };
 
-    return 3 + Array.IndexOf(types, groundType);
+    return Array.IndexOf(types, groundType);
   }
 }
