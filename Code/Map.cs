@@ -23,8 +23,11 @@ public class Map : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
+        base._Ready();
         _random = new Random();
         GenerateMap();
+        var mapRenderer = GetChild<MapRenderer>(0);
+        mapRenderer.DoRender(this);
     }
 
     private void GenerateMap() {
