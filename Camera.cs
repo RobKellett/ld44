@@ -12,6 +12,9 @@ public class Camera : Camera2D
     }
 
     public override void _Process(float delta) {
+        if(Input.IsKeyPressed((int)KeyList.Escape)) {
+            GetTree().Quit();
+        }
         Vector2 scrollDir = new Vector2();
         if(Input.IsKeyPressed((int)KeyList.Left)) {
             scrollDir.x -= 1;
