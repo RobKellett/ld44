@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public enum GroundType {
     Grass,
@@ -12,7 +14,7 @@ public enum GroundType {
 public class Map : Node
 {
     public int MAP_WIDTH = 100;
-    public int MAP_LEFT_EDGE => MAP_WIDTH - 1;
+    public int MAP_RIGHT_EDGE => MAP_WIDTH - 1;
     public int MAP_HEIGHT = 100;
     public int MAP_BOTTOM_EDGE => MAP_HEIGHT - 1;
     public GroundType[,] _land;
@@ -34,7 +36,7 @@ public class Map : Node
 
         for(int x = 0; x < MAP_WIDTH; x++) {
             for(int y = 0; y < MAP_WIDTH; y++) {
-                if(x == 0 || x == MAP_LEFT_EDGE || y == 0 || y == MAP_BOTTOM_EDGE) {
+                if(x == 0 || x == MAP_RIGHT_EDGE || y == 0 || y == MAP_BOTTOM_EDGE) {
                     // Fill the edges with mountain
                     _land[x,y] = GroundType.Mountain;
                 } else {
@@ -48,7 +50,15 @@ public class Map : Node
         var riverCount = _random.Next(2, 5);
         for(var i = 0; i < riverCount; i++) {
             AddRiver();
-        }   
+        }
+
+        for(var i = 0; i < 10; i++) {
+            var centerX = _random.Next(0, MAP_RIGHT_EDGE);
+            var centerY = _random.Next(0, MAP_BOTTOM_EDGE);
+
+            AddBiome(centerX, centerY, 0, 15, RandomGroundType());
+        }
+        GD.Print("Done generating map.");
     }
     private void AddRiver() {
         var riverCursorX = 0;
@@ -66,15 +76,15 @@ public class Map : Node
             riverCursorY = _random.Next(0, MAP_BOTTOM_EDGE);
             targetEdge = 2;
         } else if(edge == 1) {
-            riverCursorX = _random.Next(0, MAP_LEFT_EDGE);
+            riverCursorX = _random.Next(0, MAP_RIGHT_EDGE);
             riverCursorY = 0;
             targetEdge = 3;
         } else if(edge == 2) {
-            riverCursorX = MAP_LEFT_EDGE;
+            riverCursorX = MAP_RIGHT_EDGE;
             riverCursorY = _random.Next(0, MAP_BOTTOM_EDGE);
             targetEdge = 0;
         } else if(edge == 3) {
-            riverCursorX = _random.Next(0, MAP_LEFT_EDGE);
+            riverCursorX = _random.Next(0, MAP_RIGHT_EDGE);
             riverCursorY = MAP_BOTTOM_EDGE;
             targetEdge = 1;
         }
@@ -113,7 +123,7 @@ public class Map : Node
             // If we go past the edge, or hit water or mountain, stop
             if (riverCursorX < 0 ||
                 riverCursorY < 0 ||
-                riverCursorX > MAP_LEFT_EDGE ||
+                riverCursorX > MAP_RIGHT_EDGE ||
                 riverCursorY > MAP_BOTTOM_EDGE ||
                 _land[riverCursorX, riverCursorY] == GroundType.Water ||
                 _land[riverCursorX, riverCursorY] == GroundType.Mountain
@@ -123,6 +133,47 @@ public class Map : Node
         }
     }
 
+    private struct PrioritizedMapCoord {
+        public int X, Y;
+        public float Priority;
+    }
+    private void AddBiome(int centerX, int centerY, float lumpiness, int targetSize, GroundType type) {
+        // Starting at centerX and centerY, start filling in things with type until you reach size
+        // Use lumpiness for random bias, such that lumpiness of 0 is a circle
+        var items = new List<PrioritizedMapCoord>();
+        items.Add(new PrioritizedMapCoord { X = centerX, Y = centerY, Priority = 1 });
+        int biomeSize = 0;
+        while(items.Count > 0 && biomeSize < targetSize) {
+            var next = BiasedPick(items, 0);
+            if(next.X < 0 || next.X > MAP_RIGHT_EDGE) continue;
+            if(next.Y < 0 || next.Y > MAP_BOTTOM_EDGE) continue;
+            if(_land[next.X, next.Y] == type) continue;
+            biomeSize++;
+            if(_land[next.X, next.Y] != GroundType.Water && _land[next.X, next.Y] != GroundType.Mountain) {
+                _land[next.X, next.Y] = type;
+            }
+            // Now add the neighbors
+            items.Add(new PrioritizedMapCoord { X = next.X - 1, Y = next.Y, Priority = 1 });
+            items.Add(new PrioritizedMapCoord { X = next.X + 1, Y = next.Y, Priority = 1 });
+            items.Add(new PrioritizedMapCoord { X = next.X, Y = next.Y - 1, Priority = 1 });
+            items.Add(new PrioritizedMapCoord { X = next.X, Y = next.Y + 1, Priority = 1 });
+        }
+    }
+
+    private PrioritizedMapCoord BiasedPick(List<PrioritizedMapCoord> options, float bias) {
+        PrioritizedMapCoord c = options[0];
+        // For now, just use equal probability to pick all of them
+        int idx = 0;
+        foreach(var i in options) {
+            var r = _random.Next(0, idx);
+            if(r < 1) {
+                c = i;
+            }
+            idx++;
+        }
+        options.Remove(c);
+        return c;
+    }
     private GroundType RandomGroundType() {
         int choice = _random.Next(0, 4);
         switch(choice) {
