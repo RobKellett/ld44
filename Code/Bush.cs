@@ -4,30 +4,29 @@ using LD44.Utilities;
 
 public class Bush : FruitedPlant
 {
-  private Texture noFruitTexture;
-  private Texture fruitTexture;
+  private Texture _noFruitTexture;
+  private Texture _fruitTexture;
+  private ResourceSprite _sprite;
 
   public override void _Ready()
   {
-    noFruitTexture = (Texture)GD.Load("res://Assets/bush.png");
+    _noFruitTexture = (Texture)GD.Load("res://Assets/bush.png");
     var textureIdx = RNG.Instance.Next(3);
-    fruitTexture = (Texture)GD.Load($"res://Assets/bush-fruit{textureIdx}.png");
+    _fruitTexture = (Texture)GD.Load($"res://Assets/bush-fruit{textureIdx}.png");
 
-    var sprite = GetChild<ResourceSprite>(0);
-    sprite.SetTexture(noFruitTexture);
-    sprite.RandomizePosition();
+    _sprite = GetChild<ResourceSprite>(0);
+    _sprite.SetTexture(_noFruitTexture);
+    _sprite.RandomizePosition();
 
     FRUIT_TIMER = 15f;
     _timeSinceFruitPicked = (float)RNG.Instance.NextDouble() * FRUIT_TIMER;
   }
   protected override void Bloom() {
       base.Bloom();
-      var sprite = GetChild<ResourceSprite>(0);
-      sprite.SetTexture(fruitTexture);
+      _sprite.SetTexture(_fruitTexture);
   }
   public override void Pick() {
       base.Pick();
-      var sprite = GetChild<ResourceSprite>(0);
-      sprite.SetTexture(noFruitTexture);
+      _sprite.SetTexture(_noFruitTexture);
   }
 }
