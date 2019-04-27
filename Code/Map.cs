@@ -73,8 +73,8 @@ public class Map : Node
                     // Fill the edges with mountain
                     _land[x,y] = GroundType.Mountain;
                 } else {
-                    // Fill everything else with grass
-                    _land[x,y] = GroundType.Grass;
+                    // Fill everything else with dirt
+                    _land[x,y] = GroundType.Dirt;
                 }
             }
         }
@@ -250,17 +250,11 @@ public class Map : Node
         int biomeSize = 0;
         while(items.Count > 0 && biomeSize < targetSize) {
             var next = BiasedPick(items, 0);
-            if(next.X < 0 || next.X > MAP_RIGHT_EDGE) continue;
-            if(next.Y < 0 || next.Y > MAP_BOTTOM_EDGE) continue;
-            
-            // If a tree already exists at this position
-            if(_plants[next.X, next.Y] != null) {
-                continue;
-            }
-            biomeSize++;
 
-            if(IsAllowedInBiome(plantType, _land[next.X, next.Y])) {
-                AddPlant(next.X, next.Y, plantType);
+            if(AddPlant(next.X, next.Y, plantType)) {
+                biomeSize++;
+            } else {
+                continue;
             }
             // Now add the neighbors
             items.Add(new PrioritizedMapCoord { X = next.X - 1, Y = next.Y, Priority = 1 });
@@ -270,11 +264,15 @@ public class Map : Node
         }
     }
 
-    private void AddPlant(int x, int y, PlantType plant) {
-        var node = _plantScenes[(int)plant].Instance() as Node2D;
+    public bool AddPlant(int x, int y, PlantType plant) {
+        if(!IsAllowedAtPoint(plant, x, y)) return false;
+        var node = _plantScenes[(int)plant].Instance() as BasePlant;
+        node.CellX = x;
+        node.CellY = y;
         node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
         AddChild(node);
         _plants[x,y] = node;
+        return true;
     }
     private PrioritizedMapCoord BiasedPick(List<PrioritizedMapCoord> options, float bias) {
         PrioritizedMapCoord c = options[0];
@@ -319,6 +317,13 @@ public class Map : Node
             default:
                 return new PlantType[] {};
         }
+    }
+
+    public bool IsAllowedAtPoint(PlantType plant, int x, int y) {
+        if(x < 0 || x > MAP_RIGHT_EDGE || y < 0 || y > MAP_BOTTOM_EDGE) return false;
+        if(_plants[x, y] != null) return false;
+        if(!IsAllowedInBiome(plant, _land[x, y])) return false;
+        return true;
     }
 
     private bool IsAllowedInBiome(PlantType plant, GroundType biome) {

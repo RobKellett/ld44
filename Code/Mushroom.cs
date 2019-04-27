@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class Mushroom : Node2D
+public class Mushroom : BasePlant
 {
   public override void _Ready()
   {

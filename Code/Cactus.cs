@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class Cactus : Node2D
+public class Cactus : BasePlant
 {
   public override void _Ready()
   {
