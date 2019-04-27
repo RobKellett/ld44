@@ -5,6 +5,8 @@ public class Cactus : Node2D
 {
   public override void _Ready()
   {
-    GetChild<ResourceSprite>(0).Load("cactus", 5);
+    var sprite = GetChild<ResourceSprite>(0);
+    sprite.LoadRandomTexture("cactus", 5);
+    sprite.RandomizePosition();
   }
 }
