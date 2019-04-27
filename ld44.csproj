@@ -55,6 +55,7 @@
     <Compile Include="Code\ForestedPlant.cs" />
     <Compile Include="Code\FruitedPlant.cs" />
     <Compile Include="Code\FruitTree.cs" />
+    <Compile Include="Code\GodPowers.cs" />
     <Compile Include="Code\Map.cs" />
     <Compile Include="Code\MapRenderer.cs" />
     <Compile Include="Code\Mushroom.cs" />

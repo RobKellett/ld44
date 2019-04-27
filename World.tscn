@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Code/Map.cs" type="Script" id=1]
 [ext_resource path="res://Resources/tileset.tres" type="TileSet" id=2]
 [ext_resource path="res://Code/MapRenderer.cs" type="Script" id=3]
 [ext_resource path="res://Code/Camera.cs" type="Script" id=4]
+[ext_resource path="res://Code/GodPowers.cs" type="Script" id=5]
 
 [node name="Node" type="Node"]
 script = ExtResource( 1 )
@@ -14,11 +15,14 @@ cell_size = Vector2( 16, 16 )
 format = 1
 script = ExtResource( 3 )
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="."]
 position = Vector2( 512, 300 )
 current = true
 process_mode = 0
 drag_margin_h_enabled = false
 drag_margin_v_enabled = false
 script = ExtResource( 4 )
+
+[node name="GodPowers" type="Node2D" parent="."]
+script = ExtResource( 5 )
 

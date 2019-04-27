@@ -239,7 +239,7 @@ public class Map : Node
         }
     }
 
-    private void AddForest(int centerX, int centerY, float lumpiness, int targetSize, PlantType plantType) {
+    public void AddForest(int centerX, int centerY, float lumpiness, int targetSize, PlantType plantType) {
         // Starting at centerX and centerY, start filling in things with type until you reach size
         // Use lumpiness for random bias, such that lumpiness of 0 is a circle
         var items = new List<PrioritizedMapCoord>();
@@ -261,9 +261,14 @@ public class Map : Node
         }
     }
 
-    public bool AddPlant(int x, int y, PlantType plant) {
+    public bool AddPlant(int x, int y, PlantType plant, float supergrowthTime = 0f) {
         if(!IsAllowedAtPoint(plant, x, y)) return false;
         var node = _plantScenes[(int)plant].Instance() as BasePlant;
+        if(supergrowthTime > 0) {
+            var fn = node as ForestedPlant;
+            if(fn == null) { throw new Exception(); }
+            fn._superGrowthTimeRemaining = supergrowthTime;
+        }
         node.CellX = x;
         node.CellY = y;
         node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
@@ -342,5 +347,9 @@ public class Map : Node
                 return biome == GroundType.Desert;
             default: return true;
         }
+    }
+
+    public Vector2 ToCellCoordinates(Vector2 world) {
+        return new Vector2 { x = (int)(world.x / 32), y = (int)(world.y / 32) };
     }
 }

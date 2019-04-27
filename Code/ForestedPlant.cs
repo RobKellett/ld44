@@ -8,11 +8,20 @@ public class ForestedPlant : BasePlant {
   public float GROWTH_PROBABILITY = 0f;
   public PlantType type;
 
-  protected float _timeSinceGrowth = 0f;
+  public float _superGrowthTimeRemaining = 0f;
+  public float _timeSinceGrowth = 0f;
   protected bool _asleep = false;
+  protected bool _supergrowth = false;
+
+  protected virtual void UpdateGrowthRates(float delta) {}
 
   public override void _Process(float delta) {
     _timeSinceGrowth += delta;
+    if(_superGrowthTimeRemaining > 0) {
+      _superGrowthTimeRemaining -= delta;
+      _supergrowth = _superGrowthTimeRemaining > 0;
+    }
+    UpdateGrowthRates(delta);
 
     var parent = GetParent() as Map;
     while(!_asleep && _timeSinceGrowth >= GROWTH_TIMER) {
@@ -48,7 +57,7 @@ public class ForestedPlant : BasePlant {
       if(spawnX != 0 || spawnY != 0) {
         var shouldGrow = RNG.Instance.NextDouble() < GROWTH_PROBABILITY;
         if(!shouldGrow) continue;
-        parent.AddPlant(CellX + spawnX, CellY + spawnY, type);
+        parent.AddPlant(CellX + spawnX, CellY + spawnY, type, _superGrowthTimeRemaining);
       } else {
         _asleep = true;
       }
