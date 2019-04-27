@@ -4,8 +4,8 @@ using LD44.Utilities;
 
 public class Tree : BasePlant
 {
-  public float GROWTH_TIMER = 1f;
-  public float GROWTH_PROBABILITY = 1f;
+  public float GROWTH_TIMER = 15f;
+  public float GROWTH_PROBABILITY = .3f;
 
   private float _timeSinceGrowth = 0f;
   private bool _grown = false;
@@ -24,7 +24,8 @@ public class Tree : BasePlant
     _sprite.SetTexture(_smallTreeTexture);
     _sprite.RandomizePosition();
     // Stagger all tree growth uniformly across the range defined by GROWTH_TIMER so that things are more organic
-    _timeSinceGrowth = (float)RNG.Instance.NextDouble() * GROWTH_TIMER;
+    // Also make sure that everything "grows" the first time, so we have correct adult/child trees
+    _timeSinceGrowth = (float)RNG.Instance.NextDouble() * GROWTH_TIMER + GROWTH_TIMER;
   }
 
   public override void _Process(float delta) {
@@ -33,8 +34,6 @@ public class Tree : BasePlant
     while(!_grown && _timeSinceGrowth >= GROWTH_TIMER) {
       var parent = GetParent() as Map;
       _timeSinceGrowth -= GROWTH_TIMER;
-      var shouldGrow = RNG.Instance.NextDouble() < GROWTH_PROBABILITY;
-      if(!shouldGrow) continue;
       int spawnX = 0, spawnY = 0;
       int prob = 1;
       // Reservoir sample a random free neighbor
@@ -64,6 +63,8 @@ public class Tree : BasePlant
       }
 
       if(spawnX != 0 || spawnY != 0) {
+        var shouldGrow = RNG.Instance.NextDouble() < GROWTH_PROBABILITY;
+        if(!shouldGrow) continue;
         parent.AddPlant(CellX + spawnX, CellY + spawnY, PlantType.Tree);
       } else {
         _grown = true;
