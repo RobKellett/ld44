@@ -18,6 +18,6 @@ public class Mushroom : ForestedPlant
     GROWTH_TIMER = 3f;
     _timeSinceGrowth = (float)(RNG.Instance.NextDouble() + 1) * GROWTH_TIMER;
     GROWTH_PROBABILITY = 0.1f;
-    Type = PlantType.Mushroom;
+    type = PlantType.Mushroom;
   }
 }
