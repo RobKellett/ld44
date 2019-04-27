@@ -22,8 +22,9 @@ namespace LD44.Utilities
       var nodes = tree.GetNodesInGroup(Name);
       foreach (var node in nodes)
       {
-        if (node is TGroupMember castedNode)
+        if (node is TGroupMember)
         {
+          var castedNode = (TGroupMember)node;
           action(castedNode);
         }
       }
