@@ -27,21 +27,15 @@ public class MapRenderer : TileMap
 
   private int GroundTypeToTileIndex(GroundType groundType)
   {
-    if (groundType == GroundType.Water)
-    {
-      return 3;
-    }
+    var types = new GroundType[]
+      {
+        GroundType.Water,
+        GroundType.Grass,
+        GroundType.Dirt,
+        GroundType.Desert,
+        GroundType.Mountain
+      };
 
-    if (groundType == GroundType.Grass)
-    {
-      return 4;
-    }
-
-    if (groundType == GroundType.Dirt)
-    {
-      return 5;
-    }
-
-    return -1;
+    return 3 + Array.IndexOf(types, groundType);
   }
 }
