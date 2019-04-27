@@ -122,6 +122,7 @@ public class Map : Node
 
         //
         GD.Print("Done generating map.");
+        Group.MapUpdates.Call(GetTree(), c => c.MapUpdated());
     }
     private void AddRiver() {
         var riverCursorX = 0;
@@ -197,11 +198,7 @@ public class Map : Node
                 default: break;
             }
             // If we go past the edge, or hit water or mountain, stop
-            if (riverCursorX < 0 ||
-                riverCursorY < 0 ||
-                riverCursorX > MAP_RIGHT_EDGE ||
-                riverCursorY > MAP_BOTTOM_EDGE
-            ) {
+            if (!IsWithinBounds(riverCursorX, riverCursorY)) {
                 break;
             }
             if (_land[riverCursorX, riverCursorY] == GroundType.Mountain) {
@@ -319,8 +316,13 @@ public class Map : Node
         }
     }
 
-    public bool IsAllowedAtPoint(PlantType plant, int x, int y) {
+    public bool IsWithinBounds(int x, int y) {
         if(x < 0 || x > MAP_RIGHT_EDGE || y < 0 || y > MAP_BOTTOM_EDGE) return false;
+        return true;
+    }
+
+    public bool IsAllowedAtPoint(PlantType plant, int x, int y) {
+        if(!IsWithinBounds(x, y)) return false;
         if(_plants[x, y] != null) return false;
         if(!IsAllowedInBiome(plant, _land[x, y])) return false;
         return true;

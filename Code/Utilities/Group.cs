@@ -35,6 +35,7 @@ namespace LD44.Utilities
   {
     // To define a group:
     // public static Group<IGroupMember> GroupName = new Group<IGroupMember>("GroupName");
+    public static Group<ICareAboutMapUpdates> MapUpdates = new Group<ICareAboutMapUpdates>(nameof(ICareAboutMapUpdates));
 
     public static void CallGroup<T>(this SceneTree tree, Group<T> group, Action<T> action)
     {
