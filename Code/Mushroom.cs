@@ -5,6 +5,8 @@ public class Mushroom : Node2D
 {
   public override void _Ready()
   {
-    GetChild<ResourceSprite>(0).Load("mushroom", 6);
+    GetNode<ResourceSprite>("Sprite1").Load("mushroom", 6, 4);
+    GetNode<ResourceSprite>("Sprite2").Load("mushroom", 6, 4);
+    GetNode<ResourceSprite>("Sprite3").Load("mushroom", 6, 4);
   }
 }

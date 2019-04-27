@@ -4,17 +4,16 @@ using LD44.Utilities;
 
 public class ResourceSprite : Sprite
 {
-  public void Load(string assetName, int variants)
+  public void Load(string assetName, int variants, int jitter = 6)
   {
     var textureIdx = RNG.Instance.Next(variants);
     var texture = (Texture)GD.Load($"res://Assets/{assetName}{textureIdx}.png");
     SetTexture(texture);
 
-    const int POSITION_JITTER = 6;
-    Position = new Vector2(
-      RNG.Instance.Next(POSITION_JITTER) - (POSITION_JITTER / 2),
-      RNG.Instance.Next(POSITION_JITTER) - (POSITION_JITTER / 2)
+    Position += new Vector2(
+      RNG.Instance.Next(jitter) - (jitter / 2),
+      RNG.Instance.Next(jitter) - (jitter / 2)
     );
-    ZIndex = (int)Position.y;
+    ZIndex = 100 + (int)Position.y;
   }
 }
