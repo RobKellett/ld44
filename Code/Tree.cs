@@ -9,12 +9,20 @@ public class Tree : BasePlant
 
   private float _timeSinceGrowth = 0f;
   private bool _grown = false;
+  private ResourceSprite _sprite;
+  private Texture _smallTreeTexture;
+  private Texture _bigTreeTexture;
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
   {
-    var sprite = GetChild<ResourceSprite>(0);
-    sprite.LoadRandomTexture("tree", 2);
+    var textureIdx = RNG.Instance.Next(2);
+    _smallTreeTexture = (Texture)GD.Load($"res://Assets/tree-small{textureIdx}.png");
+    _bigTreeTexture = (Texture)GD.Load($"res://Assets/tree{textureIdx}.png");
+
+    _sprite = GetChild<ResourceSprite>(0);
+    _sprite.SetTexture(_smallTreeTexture);
+    _sprite.RandomizePosition();
     // Stagger all tree growth uniformly across the range defined by GROWTH_TIMER so that things are more organic
     _timeSinceGrowth = (float)RNG.Instance.NextDouble() * GROWTH_TIMER;
   }
@@ -59,6 +67,7 @@ public class Tree : BasePlant
         parent.AddPlant(CellX + spawnX, CellY + spawnY, PlantType.Tree);
       } else {
         _grown = true;
+        _sprite.SetTexture(_bigTreeTexture);
       }
     }
   }
