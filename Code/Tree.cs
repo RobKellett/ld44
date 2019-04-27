@@ -27,7 +27,6 @@ public class Tree : BasePlant
       _timeSinceGrowth -= GROWTH_TIMER;
       var shouldGrow = RNG.Instance.NextDouble() < GROWTH_PROBABILITY;
       if(!shouldGrow) continue;
-      GD.Print("Growing!");
       int spawnX = 0, spawnY = 0;
       int prob = 1;
       // Reservoir sample a random free neighbor
