@@ -209,7 +209,9 @@ public class Map : Node
             }
             biomeSize++;
 
-            if(_land[next.X, next.Y] != GroundType.Water && _land[next.X, next.Y] != GroundType.Mountain) {
+            if(_land[next.X, next.Y] == GroundType.Dirt ||
+               _land[next.X, next.Y] == GroundType.Grass
+            ) {
                 AddTree(next.X, next.Y);
                 trees.Add(next);
             }
