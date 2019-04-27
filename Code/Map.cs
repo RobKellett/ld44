@@ -20,10 +20,13 @@ public class Map : Node
     public GroundType[,] _land;
     private Random _random;
 
+    private PackedScene _tree;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         base._Ready();
+        _tree = GD.Load<PackedScene>("res://Tree.tscn");
         _random = new Random();
         GenerateMap();
         var mapRenderer = GetChild<MapRenderer>(0);
@@ -219,7 +222,9 @@ public class Map : Node
     }
 
     private void AddTree(int x, int y) {
-
+        var node = _tree.Instance() as Node2D;
+        node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
+        AddChild(node);
     }
     private PrioritizedMapCoord BiasedPick(List<PrioritizedMapCoord> options, float bias) {
         PrioritizedMapCoord c = options[0];
