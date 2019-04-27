@@ -16,7 +16,10 @@ public class MapRenderer : TileMap
       for (var x = 0; x < map.MAP_WIDTH; ++x)
       {
         var tile = map._land[x, y];
-        this.SetCell(x, y, GroundTypeToTileIndex(tile));
+        this.SetCell(x * 2, y * 2, GroundTypeToTileIndex(tile));
+        this.SetCell(x * 2 + 1, y * 2, GroundTypeToTileIndex(tile));
+        this.SetCell(x * 2, y * 2 + 1, GroundTypeToTileIndex(tile));
+        this.SetCell(x * 2 + 1, y * 2 + 1, GroundTypeToTileIndex(tile));
       }
     }
     this.UpdateBitmaskRegion();
