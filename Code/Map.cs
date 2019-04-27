@@ -12,22 +12,48 @@ public enum GroundType {
     Mountain,
 }
 
+public enum PlantType {
+    Tree,
+    FruitTree,
+    Mushroom,
+    Bush,
+    Cactus,
+}
+
 public class Map : Node
 {
     public int MAP_WIDTH = 100;
     public int MAP_RIGHT_EDGE => MAP_WIDTH - 1;
     public int MAP_HEIGHT = 100;
     public int MAP_BOTTOM_EDGE => MAP_HEIGHT - 1;
+
+
+    public int MIN_RIVERS = 6, MAX_RIVERS = 12;
+    public int MIN_BIOMES = 30, MAX_BIOMES = 60;
+    public int MIN_BIOME_SIZE = 40, MAX_BIOME_SIZE = 300;
+
+    public int MIN_FORESTS = 8, MAX_FORESTS = 15;
+    public int MIN_FOREST_SIZE = 100, MAX_FOREST_SIZE = 200;
+
+    public int MIN_SPARSE_PLANTS = 90, MAX_SPARSE_PLANTS = 150;
+
+
     public GroundType[,] _land;
     public Node2D[,] _plants;
 
-    private PackedScene _tree;
+    private PackedScene[] _plantScenes;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-            base._Ready();
-        _tree = GD.Load<PackedScene>("res://Objects/Tree.tscn");
+        base._Ready();
+        _plantScenes = new PackedScene[] {
+            GD.Load<PackedScene>("res://Objects/Tree.tscn"),
+            GD.Load<PackedScene>("res://Objects/FruitTree.tscn"),
+            GD.Load<PackedScene>("res://Objects/Mushroom.tscn"),
+            GD.Load<PackedScene>("res://Objects/Bush.tscn"),
+            GD.Load<PackedScene>("res://Objects/Cactus.tscn"),
+        };
         GenerateMap();
         var mapRenderer = GetChild<MapRenderer>(0);
         mapRenderer.DoRender(this);
@@ -54,23 +80,45 @@ public class Map : Node
         }
 
         // Fill in some random rivers
-        var riverCount = RNG.Instance.Next(6, 12);
+        var riverCount = RNG.Instance.Next(MIN_RIVERS, MAX_RIVERS + 1);
         for(var i = 0; i < riverCount; i++) {
             AddRiver();
         }
 
-        for(var i = 0; i < 50; i++) {
+        var biomeCount = RNG.Instance.Next(MIN_BIOMES, MAX_BIOMES + 1);
+        for(var i = 0; i < biomeCount; i++) {
             var centerX = RNG.Instance.Next(0, MAP_WIDTH);
             var centerY = RNG.Instance.Next(0, MAP_HEIGHT);
 
-            AddBiome(centerX, centerY, 0, 200, RandomGroundType(new GroundType[] { GroundType.Mountain, GroundType.Water }));
+            var biomeSize = RNG.Instance.Next(MIN_BIOME_SIZE, MAX_BIOME_SIZE + 1);
+            AddBiome(centerX, centerY, 0, biomeSize, RandomGroundType(new GroundType[] { GroundType.Mountain, GroundType.Water }));
         }
 
+        // Set some wood and mushroom forests
+        var forestedPlants = new[] { PlantType.Tree, PlantType.Mushroom };
+        var forestCount = RNG.Instance.Next(MIN_FORESTS, MAX_FORESTS + 1);
         for(var i = 0; i < 10; i++) {
             var centerX = RNG.Instance.Next(0, MAP_WIDTH);
             var centerY = RNG.Instance.Next(0, MAP_HEIGHT);
-            AddForest(centerX, centerY, 0, 200);
+            var plantType = RNG.Instance.Next(0, forestedPlants.Length);
+            var forestSize = RNG.Instance.Next(MIN_FOREST_SIZE, MAX_FOREST_SIZE + 1);
+            AddForest(centerX, centerY, 0, forestSize, forestedPlants[plantType]);
         }
+
+        // Pepper some cacti, bushes, and fruit trees
+        var sparsePlants = new[] { PlantType.Bush, PlantType.Cactus, PlantType.FruitTree };
+        var sparsePlantCount = RNG.Instance.Next(MIN_SPARSE_PLANTS, MAX_SPARSE_PLANTS + 1);
+        for(var i = 0; i < sparsePlantCount; i++) {
+            var posX = RNG.Instance.Next(1, MAP_RIGHT_EDGE);
+            var posY = RNG.Instance.Next(1, MAP_BOTTOM_EDGE);
+            var plantTypeIdx = RNG.Instance.Next(0, sparsePlants.Length);
+            var plantType = sparsePlants[plantTypeIdx];
+            if(_plants[posX, posY] == null && IsAllowedInBiome(plantType, _land[posX, posY])) {
+                AddPlant(posX, posY, plantType);
+            }
+        }
+
+        //
         GD.Print("Done generating map.");
     }
     private void AddRiver() {
@@ -192,7 +240,7 @@ public class Map : Node
         }
     }
 
-    private void AddForest(int centerX, int centerY, float lumpiness, int targetSize) {
+    private void AddForest(int centerX, int centerY, float lumpiness, int targetSize, PlantType plantType) {
         // Starting at centerX and centerY, start filling in things with type until you reach size
         // Use lumpiness for random bias, such that lumpiness of 0 is a circle
         var items = new List<PrioritizedMapCoord>();
@@ -209,10 +257,8 @@ public class Map : Node
             }
             biomeSize++;
 
-            if(_land[next.X, next.Y] == GroundType.Dirt ||
-               _land[next.X, next.Y] == GroundType.Grass
-            ) {
-                AddTree(next.X, next.Y);
+            if(IsAllowedInBiome(plantType, _land[next.X, next.Y])) {
+                AddPlant(next.X, next.Y, plantType);
             }
             // Now add the neighbors
             items.Add(new PrioritizedMapCoord { X = next.X - 1, Y = next.Y, Priority = 1 });
@@ -222,8 +268,8 @@ public class Map : Node
         }
     }
 
-    private void AddTree(int x, int y) {
-        var node = _tree.Instance() as Node2D;
+    private void AddPlant(int x, int y, PlantType plant) {
+        var node = _plantScenes[(int)plant].Instance() as Node2D;
         node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
         AddChild(node);
         _plants[x,y] = node;
@@ -258,5 +304,21 @@ public class Map : Node
         
         int choice = RNG.Instance.Next(0, allowedTypes.Count);
         return allowedTypes[choice];
+    }
+
+    private bool IsAllowedInBiome(PlantType plant, GroundType biome) {
+        switch(plant) {
+            case PlantType.Tree:
+                return biome == GroundType.Grass || biome == GroundType.Dirt;
+            case PlantType.FruitTree:
+                return biome == GroundType.Grass;
+            case PlantType.Mushroom:
+                return biome == GroundType.Dirt;
+            case PlantType.Bush:
+                return biome == GroundType.Grass || biome == GroundType.Dirt;
+            case PlantType.Cactus:
+                return biome == GroundType.Desert;
+            default: return true;
+        }
     }
 }
