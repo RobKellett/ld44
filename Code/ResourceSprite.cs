@@ -17,6 +17,7 @@ public class ResourceSprite : Sprite
       RNG.Instance.Next(jitter) - (jitter / 2),
       RNG.Instance.Next(jitter) - (jitter / 2)
     );
-    ZIndex = 100 + (int)Position.y;
+    var parentY = GetParentOrNull<Node2D>()?.Position.y ?? 0;
+    ZIndex = 100 + (int)parentY + (int)Position.y;
   }
 }
