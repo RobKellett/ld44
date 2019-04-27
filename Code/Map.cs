@@ -26,7 +26,7 @@ public class Map : Node
     public override void _Ready()
     {
         base._Ready();
-        _tree = GD.Load<PackedScene>("res://Tree.tscn");
+        _tree = GD.Load<PackedScene>("res://Objects/Tree.tscn");
         _random = new Random();
         GenerateMap();
         var mapRenderer = GetChild<MapRenderer>(0);
