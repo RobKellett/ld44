@@ -19,13 +19,14 @@ public class Map : Node
     public int MAP_HEIGHT = 100;
     public int MAP_BOTTOM_EDGE => MAP_HEIGHT - 1;
     public GroundType[,] _land;
+    public Node2D[,] _plants;
 
     private PackedScene _tree;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        base._Ready();
+            base._Ready();
         _tree = GD.Load<PackedScene>("res://Objects/Tree.tscn");
         GenerateMap();
         var mapRenderer = GetChild<MapRenderer>(0);
@@ -38,6 +39,7 @@ public class Map : Node
         }
 
         _land = new GroundType[MAP_WIDTH,MAP_HEIGHT];
+        _plants = new Node2D[MAP_WIDTH,MAP_HEIGHT];
 
         for(int x = 0; x < MAP_WIDTH; x++) {
             for(int y = 0; y < MAP_WIDTH; y++) {
@@ -196,14 +198,13 @@ public class Map : Node
         var items = new List<PrioritizedMapCoord>();
         items.Add(new PrioritizedMapCoord { X = centerX, Y = centerY, Priority = 1 });
         int biomeSize = 0;
-        var trees = new List<PrioritizedMapCoord>();
         while(items.Count > 0 && biomeSize < targetSize) {
             var next = BiasedPick(items, 0);
             if(next.X < 0 || next.X > MAP_RIGHT_EDGE) continue;
             if(next.Y < 0 || next.Y > MAP_BOTTOM_EDGE) continue;
             
             // If a tree already exists at this position
-            if(trees.Any(t => t.X == next.X && t.Y == next.Y)) {
+            if(_plants[next.X, next.Y] != null) {
                 continue;
             }
             biomeSize++;
@@ -212,7 +213,6 @@ public class Map : Node
                _land[next.X, next.Y] == GroundType.Grass
             ) {
                 AddTree(next.X, next.Y);
-                trees.Add(next);
             }
             // Now add the neighbors
             items.Add(new PrioritizedMapCoord { X = next.X - 1, Y = next.Y, Priority = 1 });
@@ -226,6 +226,7 @@ public class Map : Node
         var node = _tree.Instance() as Node2D;
         node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
         AddChild(node);
+        _plants[x,y] = node;
     }
     private PrioritizedMapCoord BiasedPick(List<PrioritizedMapCoord> options, float bias) {
         PrioritizedMapCoord c = options[0];
