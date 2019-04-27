@@ -49,6 +49,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Camera.cs" />
     <Compile Include="Code\Map.cs" />
     <Compile Include="Code\MapRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
