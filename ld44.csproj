@@ -53,6 +53,7 @@
     <Compile Include="Code\Cactus.cs" />
     <Compile Include="Code\Camera.cs" />
     <Compile Include="Code\ForestedPlant.cs" />
+    <Compile Include="Code\FruitedPlant.cs" />
     <Compile Include="Code\FruitTree.cs" />
     <Compile Include="Code\Map.cs" />
     <Compile Include="Code\MapRenderer.cs" />
