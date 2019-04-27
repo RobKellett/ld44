@@ -19,6 +19,7 @@ public class MapRenderer : TileMap
         this.SetCell(x, y, GroundTypeToTileIndex(tile));
       }
     }
+    this.UpdateBitmaskRegion();
   }
 
   private int GroundTypeToTileIndex(GroundType groundType)
