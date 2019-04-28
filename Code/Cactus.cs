@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class Cactus : BasePlant
+public class Cactus : BaseWorldObject
 {
   public override void _Ready()
   {

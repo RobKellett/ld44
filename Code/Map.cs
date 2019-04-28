@@ -59,8 +59,6 @@ public class Map : Node
         };
         _humanScene = GD.Load<PackedScene>("res://Objects/Human.tscn");
         GenerateMap();
-        var mapRenderer = GetChild<MapRenderer>(0);
-        mapRenderer.DoRender(this);
     }
 
     private void GenerateMap() {
@@ -149,6 +147,16 @@ public class Map : Node
         GD.Print("Done generating map.");
         Group.MapUpdates.Call(GetTree(), c => c.MapUpdated());
     }
+
+    public void FinishUpdates() {
+        Group.MapUpdates.Call(GetTree(), c => c.MapUpdated());
+    }
+
+    public void UpdateCell(int x, int y, GroundType type) {
+        _land[x,y] = type;
+        FinishUpdates();
+    }
+
     private void AddRiver() {
         var riverCursorX = 0;
         var riverCursorY = 0;
@@ -288,7 +296,7 @@ public class Map : Node
 
     public bool AddPlant(int x, int y, PlantType plant, float supergrowthTime = 0f) {
         if(!IsAllowedAtPoint(plant, x, y)) return false;
-        var node = _plantScenes[(int)plant].Instance() as BasePlant;
+        var node = _plantScenes[(int)plant].Instance() as BaseWorldObject;
         if(supergrowthTime > 0) {
             var fn = node as ForestedPlant;
             if(fn == null) { throw new Exception(); }
@@ -385,5 +393,35 @@ public class Map : Node
         node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
         AddChild(node);
         return true;
+    }
+
+    public Vector2 FindNearestTileOfType(int x, int y, GroundType type) {
+        var queue = new Queue<Tuple<int,int>>();
+        var visited = new HashSet<Tuple<int,int>>();
+        queue.Enqueue(new Tuple<int,int>(x, y));
+        while(queue.Count > 0) {
+            var next = queue.Dequeue();
+            visited.Add(next);
+            if(_land[next.Item1, next.Item2] == type) {
+                return new Vector2(next.Item1, next.Item2);
+            }
+            var left = new Tuple<int,int>(next.Item1 - 1, next.Item2);
+            if(!visited.Contains(left) && IsWithinBounds(left.Item1, left.Item2)) {
+                queue.Enqueue(left);
+            }
+            var up = new Tuple<int,int>(next.Item1, next.Item2 - 1);
+            if(!visited.Contains(up) && IsWithinBounds(up.Item1, up.Item2)) {
+                queue.Enqueue(up);
+            }
+            var right = new Tuple<int,int>(next.Item1 + 1, next.Item2);
+            if(!visited.Contains(right) && IsWithinBounds(right.Item1, right.Item2)) {
+                queue.Enqueue(right);
+            }
+            var down = new Tuple<int,int>(next.Item1, next.Item2 + 1);
+            if(!visited.Contains(down) && IsWithinBounds(down.Item1, down.Item2)) {
+                queue.Enqueue(down);
+            }
+        }
+        return new Vector2(-1, -1);
     }
 }

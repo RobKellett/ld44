@@ -2,7 +2,7 @@ using Godot;
 using System;
 using LD44.Utilities;
 
-public class ForestedPlant : BasePlant {
+public class ForestedPlant : BaseWorldObject {
     
   public float GROWTH_TIMER = 0f;
   public float GROWTH_PROBABILITY = 0f;

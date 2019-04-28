@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class FruitedPlant : BasePlant
+public class FruitedPlant : BaseWorldObject
 {
     public float FRUIT_TIMER = 0f;
     public float _timeSinceFruitPicked = 0f;
