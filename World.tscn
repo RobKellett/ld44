@@ -24,10 +24,11 @@ script = ExtResource( 4 )
 layer = 2
 
 [node name="Background" type="TextureProgress" parent="GodPowers/UI"]
-margin_left = 125.0
-margin_top = 79.0
-margin_right = 1437.0
-margin_bottom = 109.0
+anchor_right = 1.0
+margin_left = 64.0
+margin_top = 64.0
+margin_right = -64.0
+margin_bottom = 94.0
 value = 100.0
 texture_progress = ExtResource( 5 )
 nine_patch_stretch = true
@@ -36,11 +37,13 @@ stretch_margin_top = 3
 stretch_margin_right = 3
 stretch_margin_bottom = 3
 
-[node name="DivinityBar" type="TextureProgress" parent="GodPowers/UI"]
-margin_left = 130.0
-margin_top = 84.0
-margin_right = 1432.0
-margin_bottom = 104.0
+[node name="DivinityBar" type="TextureProgress" parent="GodPowers/UI/Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = -4.0
+margin_bottom = -4.0
 value = 30.0
 texture_progress = ExtResource( 6 )
 nine_patch_stretch = true

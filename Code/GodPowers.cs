@@ -11,7 +11,7 @@ public class GodPowers : Node2D
     }
 
     public override void _Process(float delta) {
-        GetNode<TextureProgress>("UI/DivinityBar").Value = _divinity;
+        GetNode<TextureProgress>("UI/Background/DivinityBar").Value = _divinity;
     }
 
     public override void _Input(InputEvent evt) {
