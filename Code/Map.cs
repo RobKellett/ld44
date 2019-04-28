@@ -157,8 +157,7 @@ public class Map : Node, IWaterSource
 
     public void UpdateCell(int x, int y, GroundType type) {
         _land[x,y] = type;
-        // TODO: Optimize
-        FinishUpdates();
+        Group.MapUpdates.Call(GetTree(), c => c.MapCellUpdated(x, y, type));
     }
 
     private void AddRiver() {

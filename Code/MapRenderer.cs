@@ -20,11 +20,29 @@ public class MapRenderer : TileMap, ICareAboutMapUpdates
   }
 
   public void MapUpdated() {
-    DoRender(GetParent<Map>());
+    DoFullRender(GetParent<Map>());
   }
 
-  public void DoRender(Map map)
+  public void MapCellUpdated(int x, int y, GroundType tile) {
+    UpdateCell(x, y, tile);
+  }
+
+  public void UpdateCell(int x, int y, GroundType tile) {
+    var oldTile = _oldMap[x,y];
+    if(tile != oldTile) {
+      var tileIdx = GroundTypeToTileIndex(tile);
+      this.SetCell(x * 2, y * 2, tileIdx);
+      this.SetCell(x * 2 + 1, y * 2, tileIdx);
+      this.SetCell(x * 2, y * 2 + 1, tileIdx);
+      this.SetCell(x * 2 + 1, y * 2 + 1, tileIdx);
+      _oldMap[x,y] = tile;
+      this.UpdateBitmaskRegion(new Vector2(x*2, y*2), new Vector2(x*2 + 1, y*2 + 1));
+    }
+  }
+
+  public void DoFullRender(Map map)
   {
+    GD.Print("Full redraw");
     int dirtyMinX = int.MaxValue, dirtyMaxX = -1;
     int dirtyMinY = int.MaxValue, dirtyMaxY = -1;
 
@@ -48,7 +66,6 @@ public class MapRenderer : TileMap, ICareAboutMapUpdates
         }
       }
     }
-    this.UpdateBitmaskRegion();
     if(dirtyMaxX >= 0) {
       this.UpdateBitmaskRegion(new Vector2(dirtyMinX, dirtyMinY), new Vector2(dirtyMaxX, dirtyMaxY));
     }

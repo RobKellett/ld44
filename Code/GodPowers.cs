@@ -5,6 +5,7 @@ public enum GodPowerTypes {
     None,
     SpawnForest,
     CarveRiver,
+    RaiseMountains,
 }
 
 public class GodPowers : Node2D
@@ -12,6 +13,8 @@ public class GodPowers : Node2D
     private PackedScene _riverCarverScene;
     public int _divinity = 100;
     public GodPowerTypes _activePower = GodPowerTypes.None;
+
+    public bool _raisingMountains = false;
 
     public override void _Ready() {
         _riverCarverScene = GD.Load<PackedScene>("res://Objects/RiverCarver.tscn");
@@ -23,16 +26,38 @@ public class GodPowers : Node2D
             var evtMB = (InputEventMouseButton)evt;
             var cell = map.ToCellCoordinates(GetGlobalMousePosition());
             if(evtMB.ButtonIndex != 1) return;
-            if(evtMB.Pressed && _activePower == GodPowerTypes.SpawnForest) {
-                if(_divinity >= 10) {
-                    SpawnDivineForest((int)cell.x, (int)cell.y, PlantType.Tree);
-                    _divinity -= 10;
+            if(evtMB.Pressed) {
+                if(_activePower == GodPowerTypes.SpawnForest) {
+                    if(_divinity >= 10) {
+                        SpawnDivineForest((int)cell.x, (int)cell.y, PlantType.Tree);
+                        _divinity -= 10;
+                    }
+                    _activePower = GodPowerTypes.None;
                 }
-                _activePower = GodPowerTypes.None;
+                if(_activePower == GodPowerTypes.CarveRiver) {
+                    SpawnDivineRiverTargetingPoint((int)cell.x, (int)cell.y);
+                    _activePower = GodPowerTypes.None;
+                }
+                if(_activePower == GodPowerTypes.RaiseMountains) {
+                    _raisingMountains = true;
+                }
             }
-            if(evtMB.Pressed && _activePower == GodPowerTypes.CarveRiver) {
-                SpawnDivineRiverTargetingPoint((int)cell.x, (int)cell.y);
+        }
+    }
+
+    public override void _Process(float delta) {
+        if(_raisingMountains) {
+            if(!Input.IsMouseButtonPressed(1)) {
+                _raisingMountains = false;
                 _activePower = GodPowerTypes.None;
+            } else {
+                var map = GetParent<Map>();
+                var cell = map.ToCellCoordinates(GetGlobalMousePosition());
+                if(map._land[(int)cell.x, (int)cell.y] != GroundType.Mountain) {
+                    map.UpdateCell((int)cell.x, (int)cell.y, GroundType.Mountain);
+                    _divinity -= 3;
+                }
+
             }
         }
     }

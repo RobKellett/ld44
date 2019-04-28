@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://Code/Map.cs" type="Script" id=1]
 [ext_resource path="res://Resources/tileset.tres" type="TileSet" id=2]
@@ -16,6 +16,11 @@
 [ext_resource path="res://Assets/river-button-normal.png" type="Texture" id=14]
 [ext_resource path="res://Assets/river-button-pressed.png" type="Texture" id=15]
 [ext_resource path="res://Code/UI/CarveRiver.cs" type="Script" id=16]
+[ext_resource path="res://Code/UI/RaiseMountains.cs" type="Script" id=17]
+
+[sub_resource type="StreamTexture" id=1]
+flags = 4
+load_path = "res://.import/forest-button-normal.png-8535b3aa85689fc0abb70ae3f69d3315.stex"
 
 [node name="Map" type="Node"]
 script = ExtResource( 1 )
@@ -114,11 +119,11 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="UI/CenterContainer"]
-margin_right = 104.0
+margin_right = 158.0
 margin_bottom = 50.0
 
 [node name="ActionBar" type="NinePatchRect" parent="UI/CenterContainer/MarginContainer"]
-margin_right = 104.0
+margin_right = 158.0
 margin_bottom = 50.0
 texture = ExtResource( 10 )
 patch_margin_left = 3
@@ -127,7 +132,7 @@ patch_margin_right = 3
 patch_margin_bottom = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UI/CenterContainer/MarginContainer"]
-margin_right = 104.0
+margin_right = 158.0
 margin_bottom = 50.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -151,5 +156,17 @@ texture_normal = ExtResource( 14 )
 texture_pressed = ExtResource( 15 )
 script = ExtResource( 16 )
 
+[node name="RaiseMountains" type="TextureButton" parent="UI/CenterContainer/MarginContainer/HBoxContainer"]
+margin_left = 108.0
+margin_right = 158.0
+margin_bottom = 50.0
+hint_tooltip = "Raise Mountains
+"
+toggle_mode = true
+texture_normal = SubResource( 1 )
+texture_pressed = ExtResource( 15 )
+script = ExtResource( 17 )
+
 [connection signal="pressed" from="UI/CenterContainer/MarginContainer/HBoxContainer/SpawnForest" to="UI/CenterContainer/MarginContainer/HBoxContainer/SpawnForest" method="_on_SpawnForest_pressed"]
 [connection signal="pressed" from="UI/CenterContainer/MarginContainer/HBoxContainer/CarveRiver" to="UI/CenterContainer/MarginContainer/HBoxContainer/CarveRiver" method="_on_CarveRiver_pressed"]
+[connection signal="pressed" from="UI/CenterContainer/MarginContainer/HBoxContainer/RaiseMountains" to="UI/CenterContainer/MarginContainer/HBoxContainer/RaiseMountains" method="_on_RaiseMountains_pressed"]

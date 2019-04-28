@@ -66,6 +66,7 @@
     <Compile Include="Code\UI\CarveRiver.cs" />
     <Compile Include="Code\UI\DivinityBar.cs" />
     <Compile Include="Code\UI\PopulationCount.cs" />
+    <Compile Include="Code\UI\RaiseMountains.cs" />
     <Compile Include="Code\UI\SpawnForest.cs" />
     <Compile Include="Objects\BaseWorldObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,6 +4,7 @@ using LD44.Utilities;
 
 public interface ICareAboutMapUpdates {
   void MapUpdated();
+  void MapCellUpdated(int x, int y, GroundType ground);
 }
 
 public class Tree : ForestedPlant
