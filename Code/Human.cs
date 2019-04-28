@@ -19,6 +19,7 @@ public class Human : Node2D, IFoodSource
 
   public const float SPEED = 100;
   public const float INTERACTION_RADIUS_SQUARED = 256;
+  public const float RAGE_RADIUS_SQUARED = 16384;
   public const float MAX_THIRST = 30; // seconds
   public float Thirst = MAX_THIRST;
   public const float MAX_HUNGER = 50; // seconds
@@ -169,6 +170,42 @@ public class Human : Node2D, IFoodSource
         }
       }
     }
+    else
+    {
+      // Not thirsty and not hungry. Anyone we wanna murder nearby?
+      var murderTarget = _targetResource as Human;
+      if (murderTarget == null || murderTarget.Dead)
+      {
+        var peopleIWantToKill = new List<Human>();
+        Group.Humans.Call(GetTree(), human =>
+          {
+            if (human.Dead || Position.DistanceSquaredTo(human.Position) > RAGE_RADIUS_SQUARED)
+            {
+              return;
+            }
+
+            var aggression = Aggression.Get(_team, human._team);
+            if (aggression == Aggression.Level.Murderous)
+            {
+              peopleIWantToKill.Add(human);
+            }
+          });
+        TargetClosestResource(peopleIWantToKill);
+      }
+
+      murderTarget = _targetResource as Human;
+      if (murderTarget != null && !murderTarget.Dead && Position.DistanceSquaredTo(murderTarget.Position) <= RAGE_RADIUS_SQUARED)
+      {
+        // Humans can move, so update the target position regularly
+        _targetPosition = murderTarget.Position;
+        if (Position.DistanceSquaredTo(_targetPosition) <= INTERACTION_RADIUS_SQUARED)
+        {
+          // This will kill them and take all their stuff. Nice!
+          murderTarget.TakeFood(this);
+          _targetResource = null;
+        }
+      }
+    }
 
     if (_targetResource != null)
     {
@@ -253,6 +290,11 @@ public class Human : Node2D, IFoodSource
 
   public void ResourceDestroyed(IResource resource, Human culprit)
   {
+    if (Dead)
+    {
+      return;
+    }
+
     if (resource == _targetResource)
     {
       _targetResource = null;
