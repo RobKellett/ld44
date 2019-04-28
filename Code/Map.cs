@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LD44.Utilities;
+using LD44.Resources;
 
 public enum GroundType {
     Grass,
@@ -20,8 +21,9 @@ public enum PlantType {
     Cactus,
 }
 
-public class Map : Node
+public class Map : Node, IWaterSource
 {
+    public bool HasWater { get; } = true;
     public int MAP_WIDTH = 100;
     public int MAP_RIGHT_EDGE => MAP_WIDTH - 1;
     public int MAP_HEIGHT = 100;
@@ -58,6 +60,7 @@ public class Map : Node
             GD.Load<PackedScene>("res://Objects/Cactus.tscn"),
         };
         _humanScene = GD.Load<PackedScene>("res://Objects/Human.tscn");
+        Group.WaterSources.Add(this);
         GenerateMap();
     }
 
@@ -427,5 +430,17 @@ public class Map : Node
             }
         }
         return new Vector2(-1, -1);
+    }
+
+    public Vector2 GetClosestPosition(Vector2 yourPosition)
+    {
+        var cellCoords = ToCellCoordinates(yourPosition);
+        var target = FindNearestTileOfType((int)cellCoords.x, (int)cellCoords.y, GroundType.Water);
+        return new Vector2(target.x * 32 + 16, target.y * 32 + 16);
+    }
+
+    public void TakeWater(Human human)
+    {
+        human.Drink();
     }
 }

@@ -1,11 +1,18 @@
 using Godot;
 using System;
+using LD44.Resources;
+using LD44.Utilities;
 
-public class FruitedPlant : BaseWorldObject
+public class FruitedPlant : BaseWorldObject, IFoodSource
 {
     public float FRUIT_TIMER = 0f;
     public float _timeSinceFruitPicked = 0f;
     public bool _bearingFruit = false;
+    public bool HasFood { get { return _bearingFruit; } }
+
+    public override void _Ready() {
+        Group.FoodSources.Add(this);
+    }
 
     public override void _Process(float delta) {
         if(!_bearingFruit) {
@@ -24,5 +31,16 @@ public class FruitedPlant : BaseWorldObject
             _bearingFruit = false;
             _timeSinceFruitPicked = 0;
         }
+    }
+
+    public Vector2 GetClosestPosition(Vector2 yourPosition)
+    {
+      return Position;
+    }
+
+    public void TakeFood(Human human)
+    {
+      Pick();
+      human.Feed(2);
     }
 }

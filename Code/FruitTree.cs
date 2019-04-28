@@ -9,6 +9,8 @@ public class FruitTree : FruitedPlant
 
   public override void _Ready()
   {
+    base._Ready();
+
     FRUIT_TIMER = 30f;
 
     _sprite = GetChild<ResourceSprite>(0);

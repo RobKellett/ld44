@@ -1,9 +1,12 @@
+using System;
 using Godot;
 using LD44.Utilities;
-using System;
+using LD44.Resources;
 
-public class Mushroom : ForestedPlant
+public class Mushroom : ForestedPlant, IFoodSource
 {
+  public bool HasFood { get; private set; } = true;
+
   public override void _Ready()
   {
     base._Ready();
@@ -19,5 +22,27 @@ public class Mushroom : ForestedPlant
     _timeSinceGrowth = (float)(RNG.Instance.NextDouble() + 1) * GROWTH_TIMER;
     GROWTH_PROBABILITY = 0.1f;
     type = PlantType.Mushroom;
+    Group.FoodSources.Add(this);
+  }
+
+  public Vector2 GetClosestPosition(Vector2 yourPosition)
+  {
+    return Position;
+  }
+
+  public void TakeFood(Human human)
+  {
+    if (!HasFood)
+    {
+      return;
+    }
+
+    human.Feed(1);
+
+    //Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
+
+    //TODO: QueueFree();
+    HasFood = false;
+    Visible = false;
   }
 }

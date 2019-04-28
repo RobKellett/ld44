@@ -10,6 +10,7 @@ public class Bush : FruitedPlant
 
   public override void _Ready()
   {
+    base._Ready();
     _noFruitTexture = (Texture)GD.Load("res://Assets/bush.png");
     var textureIdx = RNG.Instance.Next(3);
     _fruitTexture = (Texture)GD.Load($"res://Assets/bush-fruit{textureIdx}.png");
