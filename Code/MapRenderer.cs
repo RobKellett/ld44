@@ -36,7 +36,7 @@ public class MapRenderer : TileMap, ICareAboutMapUpdates
       this.SetCell(x * 2, y * 2 + 1, tileIdx);
       this.SetCell(x * 2 + 1, y * 2 + 1, tileIdx);
       _oldMap[x,y] = tile;
-      this.UpdateBitmaskRegion(new Vector2(x*2, y*2), new Vector2(x*2 + 1, y*2 + 1));
+      this.UpdateBitmaskRegion(new Vector2(x*2 - 1, y*2 - 1), new Vector2(x*2 + 2, y*2 + 2));
     }
   }
 
@@ -66,9 +66,7 @@ public class MapRenderer : TileMap, ICareAboutMapUpdates
         }
       }
     }
-    if(dirtyMaxX >= 0) {
-      this.UpdateBitmaskRegion(new Vector2(dirtyMinX, dirtyMinY), new Vector2(dirtyMaxX, dirtyMaxY));
-    }
+    this.UpdateBitmaskRegion();
   }
 
   private int GroundTypeToTileIndex(GroundType groundType)

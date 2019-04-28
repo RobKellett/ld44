@@ -448,10 +448,13 @@ public class Map : Node, IWaterSource
         var pathMap = new PathfindingNode[MAP_WIDTH, MAP_HEIGHT];
         for(int x = 0; x < MAP_WIDTH; x++) {
             for(int y = 0; y < MAP_HEIGHT; y++) {
+                pathMap[x,y] = new PathfindingNode();
                 pathMap[x,y].distanceToGoal = float.MaxValue;
                 pathMap[x,y].distanceToStart = float.MaxValue;
             }
         }
+        GD.Print("pathMap initialized");
+        GD.Print($"Searching between: ({sx},{sy}) -> ({dx},{dy})");
         pathMap[sx, sy].distanceToStart = 0;
         pathMap[sx, sy].distanceToGoal = (dx - sx)*(dx - sx) + (dy - sy) *(dy - sy);
         while(queue.Count > 0) {
@@ -471,9 +474,9 @@ public class Map : Node, IWaterSource
             var currentPathMap = pathMap[current.Item1, current.Item2];
             
             var left = new Tuple<int,int>(current.Item1 - 1, current.Item2);
-            var leftPathMap = pathMap[left.Item1, left.Item2];
             if(!visited.Contains(left) && IsWalkable(left.Item1, left.Item2)) {
-                var distToNeighbor = (current.Item1 - left.Item1)*(current.Item1 - left.Item1) + (current.Item2 - left.Item2)*(current.Item2 - left.Item2);
+                var leftPathMap = pathMap[left.Item1, left.Item2];
+                var distToNeighbor = 1;
                 var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
                 if(!queue.Contains(left)) {
                     queue.Add(left);
@@ -489,9 +492,9 @@ public class Map : Node, IWaterSource
             }
             
             var right = new Tuple<int,int>(current.Item1 + 1, current.Item2);
-            var rightPathMap = pathMap[right.Item1, right.Item2];
             if(!visited.Contains(right) && IsWalkable(right.Item1, right.Item2)) {
-                var distToNeighbor = (current.Item1 - right.Item1)*(current.Item1 - right.Item1) + (current.Item2 - right.Item2)*(current.Item2 - right.Item2);
+                var rightPathMap = pathMap[right.Item1, right.Item2];
+                var distToNeighbor = 1;
                 var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
                 if(!queue.Contains(right)) {
                     queue.Add(right);
@@ -508,9 +511,9 @@ public class Map : Node, IWaterSource
 
              
             var up = new Tuple<int,int>(current.Item1, current.Item2 - 1);
-            var upPathMap = pathMap[up.Item1, up.Item2];
             if(!visited.Contains(up) && IsWalkable(up.Item1, up.Item2)) {
-                var distToNeighbor = (current.Item1 - up.Item1)*(current.Item1 - up.Item1) + (current.Item2 - up.Item2)*(current.Item2 - up.Item2);
+                var upPathMap = pathMap[up.Item1, up.Item2];
+                var distToNeighbor = 1;
                 var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
                 if(!queue.Contains(up)) {
                     queue.Add(up);
@@ -522,13 +525,13 @@ public class Map : Node, IWaterSource
                 upPathMap.prevY = current.Item2;
                 upPathMap.distanceToStart = tentativeScore;
                 var distToEnd = (dx - left.Item1)*(dx - left.Item1) + (dy - left.Item2)*(dy - left.Item2);
-                upPathMap.distanceToGoal = rightPathMap.distanceToStart + distToEnd;
+                upPathMap.distanceToGoal = upPathMap.distanceToStart + distToEnd;
             }
 
             var down = new Tuple<int,int>(current.Item1, current.Item2 + 1);
-            var downPathMap = pathMap[down.Item1, down.Item2];
             if(!visited.Contains(down) && IsWalkable(down.Item1, down.Item2)) {
-                var distToNeighbor = (current.Item1 - down.Item1)*(current.Item1 - down.Item1) + (current.Item2 - down.Item2)*(current.Item2 - down.Item2);
+                var downPathMap = pathMap[down.Item1, down.Item2];
+                var distToNeighbor = 1;
                 var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
                 if(!queue.Contains(down)) {
                     queue.Add(down);
@@ -546,10 +549,11 @@ public class Map : Node, IWaterSource
         // Now, starting from the destination, walk back a path
         var path = new List<Tuple<int,int>>();
         var cursor = new Tuple<int, int>(dx, dy);
-        while(cursor.Item1 != sx && cursor.Item2 != sy) {
-            path.Add(cursor);
+        path.Add(cursor);
+        while(cursor.Item1 != sx || cursor.Item2 != sy) {
             var pm = pathMap[cursor.Item1, cursor.Item2];
             cursor = new Tuple<int, int>(pm.prevX, pm.prevY);
+            path.Add(cursor);
         }
         path.Reverse();
         return path;

@@ -74,16 +74,23 @@ public class GodPowers : Node2D
         if(nearestRiver.x < 0) {
             return;
         }
+        // Compute the shortest path, for shits and giggles
+        var path = map.FindShortestPathBetween(x, y, (int)nearestRiver.x, (int)nearestRiver.y);
 
-        GD.Print("Found river: ", nearestRiver.x, ", ", nearestRiver.y);
+        GD.Print("Path: ");
+        foreach(var p in path) {
+            GD.Print("(", p.Item1, ", ", p.Item2, ")");
+            map.UpdateCell(p.Item1, p.Item2, GroundType.Water);
+        }
         
         // Spawn a river carver
-        var node = _riverCarverScene.Instance() as RiverCarver;
+        /*var node = _riverCarverScene.Instance() as RiverCarver;
         node.CellX = (int)nearestRiver.x;
         node.CellY = (int)nearestRiver.y;
         node._targetX = x;
         node._targetY = y;
         node._godPowers = this;
         map.AddChild(node);
+        */
     }
 }
