@@ -362,6 +362,10 @@ public class Map : Node, IWaterSource
         return true;
     }
 
+    public bool IsWalkable(int x, int y) {
+        return IsWithinBounds(x, y) && _land[x, y] != GroundType.Mountain;
+    }
+
     public bool IsAllowedAtPoint(PlantType plant, int x, int y) {
         if(!IsWithinBounds(x, y)) return false;
         if(_plants[x, y] != null) return false;
@@ -429,6 +433,126 @@ public class Map : Node, IWaterSource
             }
         }
         return new Vector2(-1, -1);
+    }
+
+    private class PathfindingNode {
+        public int prevX, prevY;
+        public float distanceToStart;
+        public float distanceToGoal;
+    }
+    public List<Tuple<int,int>> FindShortestPathBetween(int sx, int sy, int dx, int dy) {
+        // Djikstras
+        var queue = new List<Tuple<int,int>>();
+        var visited = new HashSet<Tuple<int,int>>();
+        queue.Add(new Tuple<int,int>(sx, sy));
+        var pathMap = new PathfindingNode[MAP_WIDTH, MAP_HEIGHT];
+        for(int x = 0; x < MAP_WIDTH; x++) {
+            for(int y = 0; y < MAP_HEIGHT; y++) {
+                pathMap[x,y].distanceToGoal = float.MaxValue;
+                pathMap[x,y].distanceToStart = float.MaxValue;
+            }
+        }
+        pathMap[sx, sy].distanceToStart = 0;
+        pathMap[sx, sy].distanceToGoal = (dx - sx)*(dx - sx) + (dy - sy) *(dy - sy);
+        while(queue.Count > 0) {
+            Tuple<int, int> current = null;
+            var min = float.MaxValue;
+            foreach(var i in queue) {
+                if(pathMap[i.Item1, i.Item2].distanceToGoal < min) {
+                    current = i;
+                    min = pathMap[i.Item1, i.Item2].distanceToGoal;
+                }
+            }
+            if(current.Item1 == dx && current.Item2 == dy) {
+                break;
+            }
+            queue.Remove(current);
+            visited.Add(current);
+            var currentPathMap = pathMap[current.Item1, current.Item2];
+            
+            var left = new Tuple<int,int>(current.Item1 - 1, current.Item2);
+            var leftPathMap = pathMap[left.Item1, left.Item2];
+            if(!visited.Contains(left) && IsWalkable(left.Item1, left.Item2)) {
+                var distToNeighbor = (current.Item1 - left.Item1)*(current.Item1 - left.Item1) + (current.Item2 - left.Item2)*(current.Item2 - left.Item2);
+                var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
+                if(!queue.Contains(left)) {
+                    queue.Add(left);
+                } else if (tentativeScore >= leftPathMap.distanceToStart) {
+                    continue;
+                }
+                
+                leftPathMap.prevX = current.Item1;
+                leftPathMap.prevY = current.Item2;
+                leftPathMap.distanceToStart = tentativeScore;
+                var distToEnd = (dx - left.Item1)*(dx - left.Item1) + (dy - left.Item2)*(dy - left.Item2);
+                leftPathMap.distanceToGoal = leftPathMap.distanceToStart + distToEnd;
+            }
+            
+            var right = new Tuple<int,int>(current.Item1 + 1, current.Item2);
+            var rightPathMap = pathMap[right.Item1, right.Item2];
+            if(!visited.Contains(right) && IsWalkable(right.Item1, right.Item2)) {
+                var distToNeighbor = (current.Item1 - right.Item1)*(current.Item1 - right.Item1) + (current.Item2 - right.Item2)*(current.Item2 - right.Item2);
+                var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
+                if(!queue.Contains(right)) {
+                    queue.Add(right);
+                } else if (tentativeScore >= rightPathMap.distanceToStart) {
+                    continue;
+                }
+                
+                rightPathMap.prevX = current.Item1;
+                rightPathMap.prevY = current.Item2;
+                rightPathMap.distanceToStart = tentativeScore;
+                var distToEnd = (dx - left.Item1)*(dx - left.Item1) + (dy - right.Item2)*(dy - right.Item2);
+                rightPathMap.distanceToGoal = rightPathMap.distanceToStart + distToEnd;
+            }
+
+             
+            var up = new Tuple<int,int>(current.Item1, current.Item2 - 1);
+            var upPathMap = pathMap[up.Item1, up.Item2];
+            if(!visited.Contains(up) && IsWalkable(up.Item1, up.Item2)) {
+                var distToNeighbor = (current.Item1 - up.Item1)*(current.Item1 - up.Item1) + (current.Item2 - up.Item2)*(current.Item2 - up.Item2);
+                var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
+                if(!queue.Contains(up)) {
+                    queue.Add(up);
+                } else if (tentativeScore >= upPathMap.distanceToStart) {
+                    continue;
+                }
+                
+                upPathMap.prevX = current.Item1;
+                upPathMap.prevY = current.Item2;
+                upPathMap.distanceToStart = tentativeScore;
+                var distToEnd = (dx - left.Item1)*(dx - left.Item1) + (dy - left.Item2)*(dy - left.Item2);
+                upPathMap.distanceToGoal = rightPathMap.distanceToStart + distToEnd;
+            }
+
+            var down = new Tuple<int,int>(current.Item1, current.Item2 + 1);
+            var downPathMap = pathMap[down.Item1, down.Item2];
+            if(!visited.Contains(down) && IsWalkable(down.Item1, down.Item2)) {
+                var distToNeighbor = (current.Item1 - down.Item1)*(current.Item1 - down.Item1) + (current.Item2 - down.Item2)*(current.Item2 - down.Item2);
+                var tentativeScore = currentPathMap.distanceToStart + distToNeighbor;
+                if(!queue.Contains(down)) {
+                    queue.Add(down);
+                } else if (tentativeScore >= downPathMap.distanceToStart) {
+                    continue;
+                }
+                
+                downPathMap.prevX = current.Item1;
+                downPathMap.prevY = current.Item2;
+                downPathMap.distanceToStart = tentativeScore;
+                var distToEnd = (dx - left.Item1)*(dx - left.Item1) + (dy - down.Item2)*(dy - down.Item2);
+                downPathMap.distanceToGoal = downPathMap.distanceToStart + distToEnd;
+            }
+        }
+        // Now, starting from the destination, walk back a path
+        var path = new List<Tuple<int,int>>();
+        var cursor = new Tuple<int, int>(dx, dy);
+        while(cursor.Item1 != sx && cursor.Item2 != sy) {
+            path.Add(cursor);
+            var pm = pathMap[cursor.Item1, cursor.Item2];
+            cursor = new Tuple<int, int>(pm.prevX, pm.prevY);
+        }
+        path.Reverse();
+        return path;
     }
 
     public Vector2 GetClosestPosition(Vector2 yourPosition)
