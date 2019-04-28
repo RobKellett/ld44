@@ -1,12 +1,14 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Code/Map.cs" type="Script" id=1]
 [ext_resource path="res://Resources/tileset.tres" type="TileSet" id=2]
 [ext_resource path="res://Code/MapRenderer.cs" type="Script" id=3]
 [ext_resource path="res://Code/GodPowers.cs" type="Script" id=4]
-[ext_resource path="res://Assets/backing-9box.png" type="Texture" id=5]
-[ext_resource path="res://Assets/progress.png" type="Texture" id=6]
-[ext_resource path="res://Code/Camera.cs" type="Script" id=7]
+[ext_resource path="res://Code/Camera.cs" type="Script" id=5]
+[ext_resource path="res://Assets/backing-9box.png" type="Texture" id=6]
+[ext_resource path="res://Assets/progress.png" type="Texture" id=7]
+[ext_resource path="res://Code/UI/DivinityBar.cs" type="Script" id=8]
+[ext_resource path="res://Code/UI/PopulationCount.cs" type="Script" id=9]
 
 [node name="Map" type="Node"]
 script = ExtResource( 1 )
@@ -20,38 +22,6 @@ script = ExtResource( 3 )
 [node name="GodPowers" type="Node2D" parent="."]
 script = ExtResource( 4 )
 
-[node name="UI" type="CanvasLayer" parent="GodPowers"]
-layer = 2
-
-[node name="Background" type="TextureProgress" parent="GodPowers/UI"]
-anchor_right = 1.0
-margin_left = 64.0
-margin_top = 64.0
-margin_right = -64.0
-margin_bottom = 94.0
-value = 100.0
-texture_progress = ExtResource( 5 )
-nine_patch_stretch = true
-stretch_margin_left = 3
-stretch_margin_top = 3
-stretch_margin_right = 3
-stretch_margin_bottom = 3
-
-[node name="DivinityBar" type="TextureProgress" parent="GodPowers/UI/Background"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 4.0
-margin_right = -4.0
-margin_bottom = -4.0
-value = 30.0
-texture_progress = ExtResource( 6 )
-nine_patch_stretch = true
-stretch_margin_left = 4
-stretch_margin_top = 4
-stretch_margin_right = 4
-stretch_margin_bottom = 4
-
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2( 512, 300 )
 z_index = 5
@@ -59,5 +29,71 @@ current = true
 process_mode = 0
 drag_margin_h_enabled = false
 drag_margin_v_enabled = false
-script = ExtResource( 7 )
+script = ExtResource( 5 )
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Background" type="TextureProgress" parent="UI"]
+anchor_right = 1.0
+margin_left = 64.0
+margin_top = 64.0
+margin_right = -64.0
+margin_bottom = 94.0
+value = 100.0
+texture_progress = ExtResource( 6 )
+nine_patch_stretch = true
+stretch_margin_left = 3
+stretch_margin_top = 3
+stretch_margin_right = 3
+stretch_margin_bottom = 3
+
+[node name="DivinityBar" type="TextureProgress" parent="UI/Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = -150.0
+margin_bottom = -4.0
+value = 30.0
+texture_progress = ExtResource( 7 )
+nine_patch_stretch = true
+stretch_margin_left = 4
+stretch_margin_top = 4
+stretch_margin_right = 4
+stretch_margin_bottom = 4
+script = ExtResource( 8 )
+
+[node name="DivinityLabel" type="Label" parent="UI/Background"]
+margin_left = 10.0
+margin_top = 8.0
+margin_right = 40.0
+margin_bottom = 14.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+text = "Divinity"
+valign = 1
+
+[node name="PopulationLabel" type="Label" parent="UI/Background"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -140.0
+margin_top = 4.0
+margin_right = -100.0
+margin_bottom = -4.0
+text = "Population:"
+valign = 1
+
+[node name="PopulationCount" type="Label" parent="UI/Background"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -65.0
+margin_top = 4.0
+margin_right = -4.0
+margin_bottom = -4.0
+text = "9999"
+align = 2
+valign = 1
+script = ExtResource( 9 )
 

@@ -10,10 +10,6 @@ public class GodPowers : Node2D
         _riverCarverScene = GD.Load<PackedScene>("res://Objects/RiverCarver.tscn");
     }
 
-    public override void _Process(float delta) {
-        GetNode<TextureProgress>("UI/Background/DivinityBar").Value = _divinity;
-    }
-
     public override void _Input(InputEvent evt) {
         var map = GetParent<Map>();
         if(evt is InputEventMouseButton) {
