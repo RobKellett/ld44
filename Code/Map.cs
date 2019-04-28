@@ -37,11 +37,14 @@ public class Map : Node
 
     public int MIN_SPARSE_PLANTS = 90, MAX_SPARSE_PLANTS = 150;
 
+    public int MIN_HUMANS_PER_TEAM = 50, MAX_HUMANS_PER_TEAM = 100;
+    public int HUMAN_TEAM_RADIUS = 10;
 
     public GroundType[,] _land;
     public Node2D[,] _plants;
 
     private PackedScene[] _plantScenes;
+    private PackedScene _humanScene;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -54,6 +57,7 @@ public class Map : Node
             GD.Load<PackedScene>("res://Objects/Bush.tscn"),
             GD.Load<PackedScene>("res://Objects/Cactus.tscn"),
         };
+        _humanScene = GD.Load<PackedScene>("res://Objects/Human.tscn");
         GenerateMap();
         var mapRenderer = GetChild<MapRenderer>(0);
         mapRenderer.DoRender(this);
@@ -120,7 +124,28 @@ public class Map : Node
             AddPlant(posX, posY, allowedTypes[plantType]);
         }
 
-        //
+        // Humans, I think
+        foreach (var team in new[] { Human.Team.Blue, Human.Team.Green, Human.Team.Red }) {
+            var humanCount = RNG.Instance.Next(MIN_HUMANS_PER_TEAM, MAX_HUMANS_PER_TEAM + 1);
+            var originX = RNG.Instance.Next(1 + HUMAN_TEAM_RADIUS, MAP_RIGHT_EDGE - HUMAN_TEAM_RADIUS);
+            var originY = RNG.Instance.Next(1 + HUMAN_TEAM_RADIUS, MAP_BOTTOM_EDGE - HUMAN_TEAM_RADIUS);
+            var validSpawns = new List<Vector2>();
+            for (var y = originY - HUMAN_TEAM_RADIUS; y < originY + HUMAN_TEAM_RADIUS; y++) {
+                for (var x = originX - HUMAN_TEAM_RADIUS; x < originX + HUMAN_TEAM_RADIUS; x++) {
+                    var distanceFromOriginSquared = (y - originY) * (y - originY) + (x - originX) * (x - originX);
+                    if (distanceFromOriginSquared > HUMAN_TEAM_RADIUS * HUMAN_TEAM_RADIUS) continue;
+                    if (_plants[x, y] != null) continue;
+                    validSpawns.Add(new Vector2(x, y));
+                }
+            }
+
+            RNG.Shuffle(validSpawns);
+            foreach (var spawn in validSpawns.Take(humanCount))
+            {
+                AddHuman((int)spawn.x, (int)spawn.y, team);
+            }
+        }
+
         GD.Print("Done generating map.");
         Group.MapUpdates.Call(GetTree(), c => c.MapUpdated());
     }
@@ -351,5 +376,14 @@ public class Map : Node
 
     public Vector2 ToCellCoordinates(Vector2 world) {
         return new Vector2 { x = (int)(world.x / 32), y = (int)(world.y / 32) };
+    }
+
+    public bool AddHuman(int x, int y, Human.Team team)
+    {
+        var node = _humanScene.Instance() as Human;
+        node.SetTeam(team);
+        node.Position = new Vector2(x * 32 + 16, y * 32 + 16);
+        AddChild(node);
+        return true;
     }
 }
