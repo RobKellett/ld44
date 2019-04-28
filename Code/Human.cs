@@ -56,6 +56,9 @@ public class Human : Node2D, IFoodSource
     Group.FoodSources.Add(this);
 
     SetTeam(_team);
+
+    Hunger = RNG.Instance.Next((int)MAX_HUNGER / 2, (int)MAX_HUNGER);
+    Thirst = RNG.Instance.Next((int)MAX_THIRST / 2, (int)MAX_THIRST);
   }
 
   public void SetTeam(Team team)
