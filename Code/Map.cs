@@ -402,25 +402,28 @@ public class Map : Node
         queue.Enqueue(new Tuple<int,int>(x, y));
         while(queue.Count > 0) {
             var next = queue.Dequeue();
-            visited.Add(next);
             if(_land[next.Item1, next.Item2] == type) {
                 return new Vector2(next.Item1, next.Item2);
             }
             var left = new Tuple<int,int>(next.Item1 - 1, next.Item2);
             if(!visited.Contains(left) && IsWithinBounds(left.Item1, left.Item2)) {
                 queue.Enqueue(left);
+                visited.Add(left);
             }
             var up = new Tuple<int,int>(next.Item1, next.Item2 - 1);
             if(!visited.Contains(up) && IsWithinBounds(up.Item1, up.Item2)) {
                 queue.Enqueue(up);
+                visited.Add(up);
             }
             var right = new Tuple<int,int>(next.Item1 + 1, next.Item2);
             if(!visited.Contains(right) && IsWithinBounds(right.Item1, right.Item2)) {
                 queue.Enqueue(right);
+                visited.Add(right);
             }
             var down = new Tuple<int,int>(next.Item1, next.Item2 + 1);
             if(!visited.Contains(down) && IsWithinBounds(down.Item1, down.Item2)) {
                 queue.Enqueue(down);
+                visited.Add(down);
             }
         }
         return new Vector2(-1, -1);
