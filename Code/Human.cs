@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using LD44.Utilities;
 
 public class Human : Node2D
 {
@@ -14,6 +15,11 @@ public class Human : Node2D
   private AnimationPlayer _animationPlayer;
   private Team _team;
 
+  public const float MAX_THIRST = 30; // seconds
+  public float Thirst = MAX_THIRST;
+  public const float MAX_HUNGER = 50; // seconds
+  public float Hunger = MAX_HUNGER;
+  public bool Dead = false;
   public override void _Ready()
   {
     var sprite = GetChild<ResourceSprite>(0);
@@ -21,7 +27,9 @@ public class Human : Node2D
 
     _clothesSprite = sprite.GetChild<Sprite>(0);
     _animationPlayer = GetChild<AnimationPlayer>(1);
-    _animationPlayer.Play("Stand");
+
+    var breatheSpeed = (float)RNG.Instance.NextDouble() / 10f + 0.95f;
+    _animationPlayer.Play("Stand", -1, breatheSpeed);
 
     SetTeam(_team);
   }
@@ -55,5 +63,27 @@ public class Human : Node2D
     }
 
     _clothesSprite.SetTexture(clothesTexture);
+  }
+
+  public override void _Process(float delta)
+  {
+    if (Dead)
+    {
+      return;
+    }
+
+    Thirst -= delta;
+    Hunger -= delta;
+
+    if (Thirst <= 0 || Hunger <= 0)
+    {
+      Dead = true;
+      _animationPlayer.Play("Die");
+    }
+  }
+
+  public void FinalizeDeath()
+  {
+    this.QueueFree();
   }
 }
