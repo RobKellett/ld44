@@ -30,8 +30,8 @@ public class Cactus : BaseWorldObject, IWaterSource, IFoodSource
     }
 
     human.Drink();
-    human.Feed(1);
-    //Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
+    human.Feed(3);
+    Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
     
     // TODO: QueueFree
     Visible = false;

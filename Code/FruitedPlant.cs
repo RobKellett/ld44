@@ -9,6 +9,7 @@ public class FruitedPlant : BaseWorldObject, IFoodSource
     public float _timeSinceFruitPicked = 0f;
     public bool _bearingFruit = false;
     public bool HasFood { get { return _bearingFruit; } }
+    protected virtual int FoodValue { get; }
 
     public override void _Ready() {
         Group.FoodSources.Add(this);
@@ -41,6 +42,7 @@ public class FruitedPlant : BaseWorldObject, IFoodSource
     public void TakeFood(Human human)
     {
       Pick();
-      human.Feed(2);
+      human.Feed(FoodValue);
+      Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
     }
 }

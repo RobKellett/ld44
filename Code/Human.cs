@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using LD44.Utilities;
 using LD44.Resources;
 
-public class Human : Node2D
+public class Human : Node2D, IFoodSource
 {
   public enum Team
   {
@@ -26,6 +26,7 @@ public class Human : Node2D
   public bool Dead = false;
 
   public int Food = 0;
+  public bool HasFood { get { return !Dead && Food > 0; } }
   public int BuildingMaterials = 0;
 
   private IResource _targetResource = null;
@@ -52,6 +53,7 @@ public class Human : Node2D
     SetAnimationState(AnimationState.Standing);
 
     Group.Humans.Add(this);
+    Group.FoodSources.Add(this);
 
     SetTeam(_team);
   }
@@ -126,8 +128,7 @@ public class Human : Node2D
       if (Food > 0)
       {
         // If we have food, eat
-        Food--;
-        Hunger = MAX_HUNGER;
+        Eat();
       }
       else
       {
@@ -138,10 +139,21 @@ public class Human : Node2D
           var foodSources = new List<IFoodSource>();
           Group.CallGroup(GetTree(), Group.FoodSources, source =>
             {
-              if (source.HasFood)
+              if (!source.HasFood)
               {
-                foodSources.Add(source);
+                return;
               }
+
+              var humanSource = source as Human;
+              if (humanSource != null)
+              {
+                if (!ShouldTargetHuman<IFoodSource>(humanSource))
+                {
+                  return;
+                }
+              }
+
+              foodSources.Add(source);
             });
           TargetClosestResource(foodSources);
           foodSource = _targetResource as IFoodSource;
@@ -224,6 +236,16 @@ public class Human : Node2D
   public void Feed(int portions)
   {
     Food += portions;
+    if (Food > 0 && Hunger <= MAX_HUNGER / 2)
+    {
+      Eat();
+    }
+  }
+
+  private void Eat()
+  {
+    Food--;
+    Hunger = MAX_HUNGER;
   }
 
   public void ResourceDestroyed(IResource resource, Human culprit)
@@ -232,7 +254,64 @@ public class Human : Node2D
     {
       _targetResource = null;
       SetAnimationState(AnimationState.Standing);
+      Aggression.Adjust(_team, culprit._team, 5);
     }
+  }
+
+  public Vector2 GetClosestPosition(Vector2 yourPosition)
+  {
+    return Position;
+  }
+
+  public void TakeFood(Human taker)
+  {
+    if (Aggression.Get(_team, taker._team) == Aggression.Level.Friendly)
+    {
+      // Sharing is caring
+      if (HasFood)
+      {
+        Food--;
+        taker.Feed(1);
+        GD.Print("Some friends shared!");
+      }
+    }
+    else
+    {
+      // I have been killed
+      Dead = true;
+      SetAnimationState(AnimationState.Dying);
+      taker.Feed(Food);
+      Food = 0;
+      // I shall be avenged
+      Aggression.Adjust(_team, taker._team, 15);
+      GD.Print("There was a MURDER!");
+    }
+  }
+
+  private bool ShouldTargetHuman<T>(Human otherHuman) where T : IResource
+  {
+    if (otherHuman.Dead)
+    {
+      return false;
+    }
+
+    var isFoodSource = typeof(T) == typeof(IFoodSource);
+    var aggression = Aggression.Get(_team, otherHuman._team);
+
+    if (aggression == Aggression.Level.Neutral)
+    {
+      // Only if I'm starving
+      return isFoodSource && Hunger <= 5;
+    }
+
+    if (aggression == Aggression.Level.Aggressive)
+    {
+      // Only if I'm hungry
+      return isFoodSource && Hunger <= MAX_HUNGER / 2;
+    }
+
+    // If we're friendly we'll share, if we're murderous we'll kill
+    return true;
   }
 
   public void FinalizeDeath()

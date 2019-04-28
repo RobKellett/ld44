@@ -6,6 +6,7 @@ public class FruitTree : FruitedPlant
   private Texture _noFruitTexture;
   private Texture _fruitTexture;
   private ResourceSprite _sprite;
+  protected override int FoodValue { get; } = 5;
 
   public override void _Ready()
   {

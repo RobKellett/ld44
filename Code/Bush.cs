@@ -7,6 +7,7 @@ public class Bush : FruitedPlant
   private Texture _noFruitTexture;
   private Texture _fruitTexture;
   private ResourceSprite _sprite;
+  protected override int FoodValue { get; } = 2;
 
   public override void _Ready()
   {

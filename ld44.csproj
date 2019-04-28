@@ -73,6 +73,7 @@
     <Compile Include="Code\Resources\IResource.cs" />
     <Compile Include="Code\Resources\IWaterSource.cs" />
     <Compile Include="Code\Resources\IFoodSource.cs" />
+    <Compile Include="Code\Aggression.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

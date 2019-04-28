@@ -39,7 +39,7 @@ public class Mushroom : ForestedPlant, IFoodSource
 
     human.Feed(1);
 
-    //Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
+    Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
 
     //TODO: QueueFree();
     HasFood = false;
