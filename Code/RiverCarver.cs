@@ -9,6 +9,7 @@ public class RiverCarver : BaseWorldObject
     public int _heading = -1;
     public float _timeUntilCarve = 0f;
     public float _timeToCarve = 0.2f;
+    public GodPowers _godPowers;
 
     public override void _Process(float delta) {
         _timeUntilCarve -= delta;
@@ -17,14 +18,15 @@ public class RiverCarver : BaseWorldObject
         }
         var map = GetParent<Map>();
         _timeUntilCarve = _timeToCarve;
-        // If we've reached our destination, go ahead and clean up
-        if(CellX == _targetX && CellY == _targetY) {
+        // If we've reached our destination or run out of power, go ahead and clean up
+        if(CellX == _targetX && CellY == _targetY || _godPowers._divinity < 3) {
             QueueFree();
         }
 
         // Otherwise, set our current tile to water, and make a biased walk towards the target
         if(map.IsWithinBounds(CellX, CellY)) {
             map.UpdateCell(CellX, CellY, GroundType.Water);
+            _godPowers._divinity -= 3;
         }
 
         // If we dont' have a heading, point whichever direction will get us closest to the target

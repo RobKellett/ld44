@@ -4,9 +4,14 @@ using System;
 public class GodPowers : Node2D
 {
     private PackedScene _riverCarverScene;
+    public int _divinity = 100;
 
     public override void _Ready() {
         _riverCarverScene = GD.Load<PackedScene>("res://Objects/RiverCarver.tscn");
+    }
+
+    public override void _Process(float delta) {
+        GetNode<TextureProgress>("UI/DivinityBar").Value = _divinity;
     }
 
     public override void _Input(InputEvent evt) {
@@ -14,8 +19,9 @@ public class GodPowers : Node2D
         if(evt is InputEventMouseButton) {
             var evtMB = (InputEventMouseButton)evt;
             var cell = map.ToCellCoordinates(GetGlobalMousePosition());
-            if(evtMB.Pressed && evtMB.ButtonIndex == 1) {
+            if(evtMB.Pressed && evtMB.ButtonIndex == 1 && _divinity >= 10) {
                 SpawnDivineForest((int)cell.x, (int)cell.y, PlantType.Tree);
+                _divinity -= 10;
             }
             if(evtMB.Pressed && evtMB.ButtonIndex == 2) {
                 GD.Print("Spawning river towards ", cell.x, cell.y);
@@ -36,6 +42,8 @@ public class GodPowers : Node2D
         if(nearestRiver.x < 0) {
             return;
         }
+
+        GD.Print("Found river: ", nearestRiver.x, ", ", nearestRiver.y);
         
         // Spawn a river carver
         var node = _riverCarverScene.Instance() as RiverCarver;
@@ -43,6 +51,7 @@ public class GodPowers : Node2D
         node.CellY = (int)nearestRiver.y;
         node._targetX = x;
         node._targetY = y;
+        node._godPowers = this;
         map.AddChild(node);
     }
 }
