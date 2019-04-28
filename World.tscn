@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Code/Map.cs" type="Script" id=1]
 [ext_resource path="res://Resources/tileset.tres" type="TileSet" id=2]
@@ -9,6 +9,13 @@
 [ext_resource path="res://Assets/progress.png" type="Texture" id=7]
 [ext_resource path="res://Code/UI/DivinityBar.cs" type="Script" id=8]
 [ext_resource path="res://Code/UI/PopulationCount.cs" type="Script" id=9]
+[ext_resource path="res://Assets/panel-9box.png" type="Texture" id=10]
+[ext_resource path="res://Assets/forest-button-normal.png" type="Texture" id=11]
+[ext_resource path="res://Assets/forest-button-pressed.png" type="Texture" id=12]
+[ext_resource path="res://Code/UI/SpawnForest.cs" type="Script" id=13]
+[ext_resource path="res://Assets/river-button-normal.png" type="Texture" id=14]
+[ext_resource path="res://Assets/river-button-pressed.png" type="Texture" id=15]
+[ext_resource path="res://Code/UI/CarveRiver.cs" type="Script" id=16]
 
 [node name="Map" type="Node"]
 script = ExtResource( 1 )
@@ -34,7 +41,7 @@ script = ExtResource( 5 )
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 2
 
-[node name="Background" type="TextureProgress" parent="UI"]
+[node name="ResourceBar" type="TextureProgress" parent="UI"]
 anchor_right = 1.0
 margin_left = 64.0
 margin_top = 64.0
@@ -48,7 +55,7 @@ stretch_margin_top = 3
 stretch_margin_right = 3
 stretch_margin_bottom = 3
 
-[node name="DivinityBar" type="TextureProgress" parent="UI/Background"]
+[node name="DivinityBar" type="TextureProgress" parent="UI/ResourceBar"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -64,7 +71,7 @@ stretch_margin_right = 4
 stretch_margin_bottom = 4
 script = ExtResource( 8 )
 
-[node name="DivinityLabel" type="Label" parent="UI/Background"]
+[node name="DivinityLabel" type="Label" parent="UI/ResourceBar"]
 margin_left = 10.0
 margin_top = 8.0
 margin_right = 40.0
@@ -73,7 +80,7 @@ custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "Divinity"
 valign = 1
 
-[node name="PopulationLabel" type="Label" parent="UI/Background"]
+[node name="PopulationLabel" type="Label" parent="UI/ResourceBar"]
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -84,7 +91,7 @@ margin_bottom = -4.0
 text = "Population:"
 valign = 1
 
-[node name="PopulationCount" type="Label" parent="UI/Background"]
+[node name="PopulationCount" type="Label" parent="UI/ResourceBar"]
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -97,3 +104,52 @@ align = 2
 valign = 1
 script = ExtResource( 9 )
 
+[node name="CenterContainer" type="CenterContainer" parent="UI"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_top = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/CenterContainer"]
+margin_right = 104.0
+margin_bottom = 50.0
+
+[node name="ActionBar" type="NinePatchRect" parent="UI/CenterContainer/MarginContainer"]
+margin_right = 104.0
+margin_bottom = 50.0
+texture = ExtResource( 10 )
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/CenterContainer/MarginContainer"]
+margin_right = 104.0
+margin_bottom = 50.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SpawnForest" type="TextureButton" parent="UI/CenterContainer/MarginContainer/HBoxContainer"]
+margin_right = 50.0
+margin_bottom = 50.0
+hint_tooltip = "Spawn Forest"
+toggle_mode = true
+texture_normal = ExtResource( 11 )
+texture_pressed = ExtResource( 12 )
+script = ExtResource( 13 )
+
+[node name="CarveRiver" type="TextureButton" parent="UI/CenterContainer/MarginContainer/HBoxContainer"]
+margin_left = 54.0
+margin_right = 104.0
+margin_bottom = 50.0
+hint_tooltip = "Carve River"
+toggle_mode = true
+texture_normal = ExtResource( 14 )
+texture_pressed = ExtResource( 15 )
+script = ExtResource( 16 )
+
+[connection signal="pressed" from="UI/CenterContainer/MarginContainer/HBoxContainer/SpawnForest" to="UI/CenterContainer/MarginContainer/HBoxContainer/SpawnForest" method="_on_SpawnForest_pressed"]
+[connection signal="pressed" from="UI/CenterContainer/MarginContainer/HBoxContainer/CarveRiver" to="UI/CenterContainer/MarginContainer/HBoxContainer/CarveRiver" method="_on_CarveRiver_pressed"]

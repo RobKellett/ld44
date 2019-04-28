@@ -60,12 +60,13 @@
     <Compile Include="Code\Map.cs" />
     <Compile Include="Code\MapRenderer.cs" />
     <Compile Include="Code\Mushroom.cs" />
-    <Compile Include="Code\Powers\SpawnForest.cs" />
     <Compile Include="Code\ResourceSprite.cs" />
     <Compile Include="Code\RiverCarver.cs" />
     <Compile Include="Code\Tree.cs" />
+    <Compile Include="Code\UI\CarveRiver.cs" />
     <Compile Include="Code\UI\DivinityBar.cs" />
     <Compile Include="Code\UI\PopulationCount.cs" />
+    <Compile Include="Code\UI\SpawnForest.cs" />
     <Compile Include="Objects\BaseWorldObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Code\Utilities\Group.cs" />

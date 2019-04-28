@@ -1,10 +1,17 @@
 using Godot;
 using System;
 
+public enum GodPowerTypes {
+    None,
+    SpawnForest,
+    CarveRiver,
+}
+
 public class GodPowers : Node2D
 {
     private PackedScene _riverCarverScene;
     public int _divinity = 100;
+    public GodPowerTypes _activePower = GodPowerTypes.None;
 
     public override void _Ready() {
         _riverCarverScene = GD.Load<PackedScene>("res://Objects/RiverCarver.tscn");
@@ -15,13 +22,17 @@ public class GodPowers : Node2D
         if(evt is InputEventMouseButton) {
             var evtMB = (InputEventMouseButton)evt;
             var cell = map.ToCellCoordinates(GetGlobalMousePosition());
-            if(evtMB.Pressed && evtMB.ButtonIndex == 1 && _divinity >= 10) {
-                SpawnDivineForest((int)cell.x, (int)cell.y, PlantType.Tree);
-                _divinity -= 10;
+            if(evtMB.ButtonIndex != 1) return;
+            if(evtMB.Pressed && _activePower == GodPowerTypes.SpawnForest) {
+                if(_divinity >= 10) {
+                    SpawnDivineForest((int)cell.x, (int)cell.y, PlantType.Tree);
+                    _divinity -= 10;
+                }
+                _activePower = GodPowerTypes.None;
             }
-            if(evtMB.Pressed && evtMB.ButtonIndex == 2) {
-                GD.Print("Spawning river towards ", cell.x, cell.y);
+            if(evtMB.Pressed && _activePower == GodPowerTypes.CarveRiver) {
                 SpawnDivineRiverTargetingPoint((int)cell.x, (int)cell.y);
+                _activePower = GodPowerTypes.None;
             }
         }
     }
