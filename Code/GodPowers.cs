@@ -16,12 +16,10 @@ public class GodPowers : Node2D
             var cell = map.ToCellCoordinates(GetGlobalMousePosition());
             if(evtMB.Pressed && evtMB.ButtonIndex == 1) {
                 SpawnDivineForest((int)cell.x, (int)cell.y, PlantType.Tree);
-                map.FinishUpdates();
             }
             if(evtMB.Pressed && evtMB.ButtonIndex == 2) {
                 GD.Print("Spawning river towards ", cell.x, cell.y);
                 SpawnDivineRiverTargetingPoint((int)cell.x, (int)cell.y);
-                map.FinishUpdates();
             }
         }
     }

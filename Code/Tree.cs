@@ -6,7 +6,7 @@ public interface ICareAboutMapUpdates {
   void MapUpdated();
 }
 
-public class Tree : ForestedPlant, ICareAboutMapUpdates
+public class Tree : ForestedPlant
 { 
   private bool _grown = false;
   private AnimationPlayer _animationPlayer;
@@ -15,8 +15,7 @@ public class Tree : ForestedPlant, ICareAboutMapUpdates
   public override void _Ready()
   {
     base._Ready();
-    Group.MapUpdates.Add(this);
-
+    
     var textureIdx = RNG.Instance.Next(2);
     var smallTreeTexture = (Texture)GD.Load($"res://Assets/tree-small{textureIdx}.png");
     var bigTreeTexture = (Texture)GD.Load($"res://Assets/tree{textureIdx}.png");
@@ -37,10 +36,6 @@ public class Tree : ForestedPlant, ICareAboutMapUpdates
     _timeSinceGrowth = 0f;
     GROWTH_PROBABILITY = 0f;
     type = PlantType.Tree;
-    UpdateGrowthRates(0f);
-  }
-
-  public void MapUpdated() {
     UpdateGrowthRates(0f);
   }
 

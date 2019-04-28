@@ -38,7 +38,7 @@ public class MapRenderer : TileMap, ICareAboutMapUpdates
           dirtyMinX = Math.Min(dirtyMinX, x);
           dirtyMaxX = Math.Max(dirtyMaxX, x);
           dirtyMinY = Math.Min(dirtyMinY, y);
-          dirtyMaxX = Math.Max(dirtyMaxY, y);
+          dirtyMaxY = Math.Max(dirtyMaxY, y);
           var tileIdx = GroundTypeToTileIndex(tile);
           this.SetCell(x * 2, y * 2, tileIdx);
           this.SetCell(x * 2 + 1, y * 2, tileIdx);
@@ -48,6 +48,7 @@ public class MapRenderer : TileMap, ICareAboutMapUpdates
         }
       }
     }
+    this.UpdateBitmaskRegion();
     if(dirtyMaxX >= 0) {
       this.UpdateBitmaskRegion(new Vector2(dirtyMinX, dirtyMinY), new Vector2(dirtyMaxX, dirtyMaxY));
     }

@@ -6,14 +6,16 @@ public class RiverCarver : BaseWorldObject
 {
     public int _targetX;
     public int _targetY;
+    public int _heading = -1;
     public float _timeUntilCarve = 0f;
-    public float _timeToCarve = 0.5f;
+    public float _timeToCarve = 0.2f;
 
     public override void _Process(float delta) {
         _timeUntilCarve -= delta;
         if(_timeUntilCarve > 0) {
             return;
         }
+        var map = GetParent<Map>();
         _timeUntilCarve = _timeToCarve;
         // If we've reached our destination, go ahead and clean up
         if(CellX == _targetX && CellY == _targetY) {
@@ -21,11 +23,65 @@ public class RiverCarver : BaseWorldObject
         }
 
         // Otherwise, set our current tile to water, and make a biased walk towards the target
-        var map = GetParent<Map>();
         if(map.IsWithinBounds(CellX, CellY)) {
             map.UpdateCell(CellX, CellY, GroundType.Water);
         }
 
+        // If we dont' have a heading, point whichever direction will get us closest to the target
+        var optimalHeading = GetOptimalHeading();
+        if(_heading < 0) {
+            _heading = optimalHeading;
+        }
+
+        // Go straight one, and choose a new heading
+        MoveForward();
+
+        // If we're headed in the right direction
+        if(_heading == optimalHeading) {
+            // 12% chance we turn
+            var turn = RNG.Instance.Next(0, 100);
+            if(turn < 20) {
+                // 10% towards target
+                // 2% away from
+                if(_heading == 0 || _heading == 2) { // If travelling left or right
+                    if(CellY > _targetY) { // Target is above?
+                        if(turn < 15) { // 10% probability to turn towards
+                            _heading = 1; // Turn up
+                        } else { // 2% probability to turn away
+                            _heading = 3; // Turn down
+                        }
+                    } else { // Otherwise target is below
+                        if(turn < 15) { // 10% towards
+                            _heading = 3; // Turn down
+                        } else { // 2% turn away
+                            _heading = 1; // Turn Up
+                        }
+                    }
+                } else { // If travelling up or down
+                    if(CellX > _targetY) { // Target is to left?
+                        if(turn < 15) { // 10% towards
+                            _heading = 0;
+                        } else { // 2% away
+                            _heading = 2;
+                        }
+                    } else {
+                        if(turn < 15) {
+                            _heading = 2;
+                        } else {
+                            _heading = 1;
+                        }
+                    }
+                }
+            }
+        } else {
+            // If we're not travelling the optimal direction, we have a 70% chance to turn correct, otherwise stay the same
+            var turn = RNG.Instance.Next(0, 100);
+            if(turn < 60) {
+                _heading = optimalHeading;
+            }
+        }
+
+        /*
         var leftBias = 0;
         var rightBias = 0;
         var upBias = 0;
@@ -65,7 +121,44 @@ public class RiverCarver : BaseWorldObject
             CellX += 1;
         } else {
             CellY += 1;
-        }
+        }*/
          
+    }
+
+    int GetOptimalHeading() {
+        if(Math.Abs(CellX - _targetX) > Math.Abs(CellY - _targetY)) {
+            // Travel left/right
+            if(CellX > _targetX) {
+                return 0;
+            } else {
+                return 2;
+            }
+        } else {
+            // Travel up/down
+            if(CellY > _targetY) {
+                return 1;
+            } else {
+                return 3;
+            }
+        }
+    }
+
+    void MoveForward() {
+        switch(_heading) {
+            case 0:
+                CellX -= 1;
+                break;
+            case 1:
+                CellY -= 1;
+                break;
+            case 2:
+                CellX += 1;
+                break;
+            case 3:
+                CellY += 1;
+                break;
+            default:
+                break;
+        }
     }
 }

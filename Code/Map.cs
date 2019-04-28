@@ -154,6 +154,7 @@ public class Map : Node
 
     public void UpdateCell(int x, int y, GroundType type) {
         _land[x,y] = type;
+        // TODO: Optimize
         FinishUpdates();
     }
 
