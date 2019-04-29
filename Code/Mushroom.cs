@@ -6,6 +6,7 @@ using LD44.Resources;
 public class Mushroom : ForestedPlant, IFoodSource
 {
   public bool HasFood { get; private set; } = true;
+  private AnimationPlayer _animationPlayer;
 
   public override void _Ready()
   {
@@ -16,6 +17,7 @@ public class Mushroom : ForestedPlant, IFoodSource
       sprite.LoadRandomTexture("mushroom", 6);
       sprite.RandomizePosition(4);
     }
+    _animationPlayer = GetChild<AnimationPlayer>(3);
     // Stagger all tree growth uniformly across the range defined by GROWTH_TIMER so that things are more organic
     // Also make sure that everything "grows" the first time, so we have correct adult/child trees
     GROWTH_TIMER = 3f;
@@ -41,8 +43,7 @@ public class Mushroom : ForestedPlant, IFoodSource
 
     Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
 
-    //TODO: QueueFree();
     HasFood = false;
-    Visible = false;
+    _animationPlayer.Play("resource_harvest");
   }
 }

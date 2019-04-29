@@ -317,7 +317,6 @@ public class Human : Node2D, IFoodSource
       {
         Food--;
         taker.Feed(1);
-        GD.Print("Some friends shared!");
       }
     }
     else
@@ -329,7 +328,6 @@ public class Human : Node2D, IFoodSource
       Food = 0;
       // I shall be avenged
       Aggression.Adjust(_team, taker._team, 15);
-      GD.Print("There was a MURDER!");
     }
   }
 

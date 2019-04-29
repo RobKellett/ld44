@@ -8,6 +8,7 @@ public class FruitedPlant : BaseWorldObject, IFoodSource
     public float FRUIT_TIMER = 0f;
     public float _timeSinceFruitPicked = 0f;
     public bool _bearingFruit = false;
+    protected bool _canBearFruit = true;
     public bool HasFood { get { return _bearingFruit; } }
     protected virtual int FoodValue { get; }
 
@@ -16,7 +17,7 @@ public class FruitedPlant : BaseWorldObject, IFoodSource
     }
 
     public override void _Process(float delta) {
-        if(!_bearingFruit) {
+        if(_canBearFruit && !_bearingFruit) {
             _timeSinceFruitPicked += delta;
             if(_timeSinceFruitPicked > FRUIT_TIMER) {
                 Bloom();

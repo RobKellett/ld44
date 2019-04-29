@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using LD44.Resources;
 using LD44.Utilities;
 
 public interface ICareAboutMapUpdates {
@@ -7,10 +8,11 @@ public interface ICareAboutMapUpdates {
   void MapCellUpdated(int x, int y, GroundType ground);
 }
 
-public class Tree : ForestedPlant
+public class Tree : ForestedPlant, IBuildingMaterialSource
 { 
   private bool _grown = false;
   private AnimationPlayer _animationPlayer;
+  public bool HasBuildingMaterial { get; private set; } = true;
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
@@ -92,5 +94,19 @@ public class Tree : ForestedPlant
       parent.IsAllowedAtPoint(type, CellX, CellY - 1) ||
       parent.IsAllowedAtPoint(type, CellX + 1, CellY) ||
       parent.IsAllowedAtPoint(type, CellX, CellY + 1);
+  }
+
+  public Vector2 GetClosestPosition(Vector2 yourPosition)
+  {
+    return Position;
+  }
+
+  public void TakeBuildingMaterial(Human human)
+  {
+    human.BuildingMaterials++;
+    
+    Visible = false;
+    HasBuildingMaterial = false;
+    _animationPlayer.Play("resource_harvest");
   }
 }

@@ -7,10 +7,12 @@ public class Cactus : BaseWorldObject, IWaterSource, IFoodSource
 {
   public bool HasWater { get; private set; } = true;
   public bool HasFood { get; private set; } = true;
+  private AnimationPlayer _animationPlayer;
 
   public override void _Ready()
   {
     var sprite = GetChild<ResourceSprite>(0);
+    _animationPlayer = GetChild<AnimationPlayer>(1);
     sprite.LoadRandomTexture("cactus", 5);
     sprite.RandomizePosition();
     Group.WaterSources.Add(this);
@@ -32,11 +34,10 @@ public class Cactus : BaseWorldObject, IWaterSource, IFoodSource
     human.Drink();
     human.Feed(3);
     Group.Humans.Call(GetTree(), h => h.ResourceDestroyed(this, human));
-    
-    // TODO: QueueFree
-    Visible = false;
+
     HasFood = false;
     HasWater = false;
+    _animationPlayer.Play("resource_harvest");
   }
 
   public void TakeWater(Human human)
